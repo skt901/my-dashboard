@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>My Life Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:     #09101f;
+  --bg2:    #101828;
+  --bg3:    #162035;
+  --bg4:    #1c2840;
+  --gold:   #c9983a;
+  --gold2:  #f0c45a;
+  --teal:   #19b8a0;
+  --blue:   #3578c8;
+  --red:    #e05555;
+  --green:  #38c870;
+  --purple: #7a5abf;
+  --pink:   #d06090;
+  --text:   #e5e2db;
+  --muted:  #6e7590;
+  --border: rgba(201,152,58,0.15);
+  --radius: 14px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.35);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  min-height:100vh;padding-bottom:80px;
+  background-image:
+    radial-gradient(ellipse at 15% 0%,rgba(53,120,200,0.1) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 95%,rgba(201,152,58,0.07) 0%,transparent 55%);
+}
+
+/* ── TOP BAR ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px 0;gap:10px;flex-wrap:wrap;
+}
+.topbar-title{
+  font-family:'Cinzel',serif;font-size:1.15rem;letter-spacing:2px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.topbar-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.badge{
+  padding:5px 14px;border-radius:20px;font-size:0.72rem;
+  border:1px solid var(--border);background:var(--bg3);
+  color:var(--muted);letter-spacing:.5px;white-space:nowrap;
+}
+.badge.ramadan{color:var(--gold);font-family:'Amiri',serif;font-size:0.85rem}
+
+/* ── BOTTOM NAV (mobile) ── */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(9,16,31,0.97);
+  border-top:1px solid var(--border);
+  display:flex;align-items:stretch;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.bottom-nav::-webkit-scrollbar{display:none}
+.nav-item{
+  flex:1;min-width:60px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;
+  padding:10px 6px;cursor:pointer;border:none;background:none;
+  color:var(--muted);font-size:0.6rem;font-weight:600;
+  letter-spacing:.3px;transition:color .2s;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.nav-item .nav-icon{font-size:1.25rem;transition:transform .2s}
+.nav-item.active{color:var(--gold2)}
+.nav-item.active .nav-icon{transform:scale(1.15)}
+.nav-item:hover{color:var(--text)}
+
+/* ── CONTENT ── */
+.content{padding:16px 16px 0}
+.section{display:none;animation:fadeUp .28s ease}
+.section.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.sec-title{
+  font-family:'Cinzel',serif;font-size:.8rem;color:var(--gold);
+  letter-spacing:2.5px;margin-bottom:16px;padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+
+/* ── CARDS ── */
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);margin-bottom:10px;
+  transition:border-color .2s;overflow:hidden;
+}
+.card:hover{border-color:rgba(201,152,58,0.3)}
+
+/* ── SCHEDULE ── */
+.sched-block{
+  display:grid;grid-template-columns:80px 1fr auto;
+  align-items:center;gap:12px;padding:13px 16px;
+}
+.sched-time{font-size:.72rem;color:var(--gold);font-weight:700;letter-spacing:.3px}
+.sched-name{font-size:.88rem;font-weight:600}
+.sched-desc{font-size:.72rem;color:var(--muted);margin-top:2px;line-height:1.4}
+.sched-tag{
+  font-size:.62rem;padding:3px 9px;border-radius:10px;
+  font-weight:700;letter-spacing:.3px;white-space:nowrap;
+}
+.tag-prayer{background:rgba(201,152,58,.15);color:var(--gold)}
+.tag-work{background:rgba(25,184,160,.15);color:var(--teal)}
+.tag-body{background:rgba(56,200,112,.15);color:var(--green)}
+.tag-sleep{background:rgba(122,90,191,.15);color:var(--purple)}
+.tag-biz{background:rgba(224,85,85,.15);color:var(--red)}
+
+/* ── HABITS ── */
+.habit-card{padding:14px 16px}
+.habit-header{
+  display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;
+}
+.habit-name-txt{font-size:.88rem;font-weight:600;flex:1;min-width:140px}
+.habit-sub{font-size:.7rem;color:var(--muted);display:block;margin-top:1px}
+.habit-streak{
+  font-size:.72rem;font-weight:700;padding:3px 11px;border-radius:12px;
+  background:rgba(201,152,58,.1);color:var(--gold);border:1px solid var(--border);
+  white-space:nowrap;
+}
+.day-row{display:flex;gap:7px;flex-wrap:wrap}
+.day-btn-wrap{display:flex;flex-direction:column;align-items:center;gap:3px}
+.day-label-txt{font-size:.6rem;color:var(--muted)}
+.day-cb{display:none}
+.day-box{
+  width:34px;height:34px;border-radius:9px;
+  border:2px solid var(--border);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;background:var(--bg3);transition:all .18s;color:transparent;
+}
+.day-cb:checked+.day-box{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border-color:var(--gold);color:#09101f;
+}
+
+/* ── GOALS ── */
+.goal-card{padding:18px}
+.goal-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.goal-emoji{font-size:1.6rem;line-height:1}
+.goal-info{flex:1}
+.goal-title-txt{
+  font-family:'Cinzel',serif;font-size:.78rem;color:var(--gold);
+  letter-spacing:1px;margin-bottom:4px;
+}
+.goal-desc{font-size:.75rem;color:var(--muted);line-height:1.5}
+.progress-wrap{background:var(--bg3);border-radius:8px;height:5px;overflow:hidden;margin-bottom:6px}
+.progress-fill{height:100%;border-radius:8px;transition:width .5s ease}
+.progress-lbl{
+  display:flex;justify-content:space-between;
+  font-size:.68rem;color:var(--muted);margin-bottom:12px;
+}
+.task-list{display:flex;flex-direction:column;gap:5px}
+.task-item{
+  display:flex;align-items:center;gap:9px;cursor:pointer;
+  font-size:.78rem;padding:3px 0;
+}
+.task-item input{display:none}
+.task-dot{
+  width:17px;height:17px;border-radius:50%;
+  border:2px solid var(--border);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;transition:all .18s;
+}
+.task-item input:checked+.task-dot{background:var(--gold);border-color:var(--gold);color:#09101f}
+.task-item input:checked~.task-lbl{text-decoration:line-through;color:var(--muted)}
+
+/* ── BOOKS ── */
+.book-card{padding:16px}
+.book-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.book-cover{
+  width:46px;height:62px;border-radius:6px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;border:1px solid var(--border);
+}
+.book-meta{flex:1}
+.book-title-txt{font-weight:700;font-size:.9rem;margin-bottom:2px}
+.book-author{font-size:.72rem;color:var(--muted);margin-bottom:6px}
+.book-status{
+  font-size:.65rem;padding:2px 9px;border-radius:10px;
+  font-weight:700;display:inline-block;
+}
+.status-reading{background:rgba(25,184,160,.15);color:var(--teal)}
+.status-done{background:rgba(56,200,112,.15);color:var(--green)}
+.status-queued{background:rgba(110,117,144,.15);color:var(--muted)}
+.book-progress-area{margin-bottom:10px}
+.page-input-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.page-input{
+  width:75px;padding:6px 10px;border-radius:8px;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-size:.82rem;font-family:inherit;
+  text-align:center;
+}
+.page-input:focus{outline:none;border-color:var(--gold)}
+.page-total-lbl{font-size:.75rem;color:var(--muted)}
+.book-notes{
+  width:100%;padding:8px 12px;border-radius:9px;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-size:.78rem;font-family:inherit;
+  resize:none;min-height:60px;line-height:1.5;
+}
+.book-notes:focus{outline:none;border-color:var(--gold)}
+.book-notes::placeholder{color:var(--muted)}
+
+/* ── ROTATION ── */
+.rot-day{padding:14px 16px}
+.rot-day.today-rot{border-color:var(--gold);background:rgba(201,152,58,.03)}
+.rot-day-hdr{
+  font-family:'Cinzel',serif;font-size:.78rem;color:var(--gold);
+  margin-bottom:10px;display:flex;align-items:center;gap:8px;
+}
+.today-chip{
+  font-size:.6rem;background:var(--gold);color:#09101f;
+  padding:2px 8px;border-radius:8px;font-weight:700;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.pill-row{display:flex;flex-wrap:wrap;gap:7px}
+.pill{
+  font-size:.7rem;padding:4px 12px;border-radius:16px;
+  font-weight:600;border:1px solid;
+}
+.p-ielts{background:rgba(53,120,200,.12);color:#7ab4f0;border-color:rgba(53,120,200,.25)}
+.p-arabic{background:rgba(201,152,58,.12);color:var(--gold);border-color:var(--border)}
+.p-gym{background:rgba(224,85,85,.12);color:#f08888;border-color:rgba(224,85,85,.25)}
+.p-data{background:rgba(25,184,160,.12);color:var(--teal);border-color:rgba(25,184,160,.25)}
+.p-docs{background:rgba(56,200,112,.12);color:var(--green);border-color:rgba(56,200,112,.25)}
+.p-biz{background:rgba(122,90,191,.12);color:#b090e8;border-color:rgba(122,90,191,.25)}
+.p-book{background:rgba(208,96,144,.12);color:#e090b8;border-color:rgba(208,96,144,.25)}
+.p-rest{background:rgba(110,117,144,.1);color:var(--muted);border-color:rgba(110,117,144,.2)}
+
+/* ── RESOURCES ── */
+.res-group{padding:16px;margin-bottom:10px}
+.res-group-title{
+  font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);
+  letter-spacing:1.5px;margin-bottom:12px;display:flex;align-items:center;gap:7px;
+}
+.res-link{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;margin-bottom:6px;
+  background:var(--bg3);text-decoration:none;
+  border:1px solid transparent;transition:all .18s;color:var(--text);
+}
+.res-link:last-child{margin-bottom:0}
+.res-link:hover{border-color:var(--border);background:rgba(201,152,58,.04);transform:translateX(3px)}
+.res-icon{font-size:1.1rem;width:24px;text-align:center;flex-shrink:0}
+.res-name{font-weight:600;font-size:.82rem}
+.res-desc{font-size:.68rem;color:var(--muted)}
+.res-badge{
+  margin-left:auto;font-size:.62rem;padding:2px 8px;
+  border-radius:8px;font-weight:700;
+  background:rgba(56,200,112,.12);color:var(--green);
+  white-space:nowrap;
+}
+
+/* ── EDIT MODE ── */
+.edit-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:20px;font-size:.72rem;
+  font-weight:700;letter-spacing:.5px;cursor:pointer;border:none;
+  background:rgba(201,152,58,.12);color:var(--gold);
+  border:1px solid var(--border);transition:all .18s;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.edit-btn:hover{background:rgba(201,152,58,.2)}
+.edit-btn.active{background:var(--gold);color:#09101f;border-color:var(--gold)}
+.delete-btn{
+  width:26px;height:26px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(224,85,85,.15);color:var(--red);
+  display:none;align-items:center;justify-content:center;
+  font-size:.9rem;transition:all .18s;flex-shrink:0;
+}
+.delete-btn:hover{background:rgba(224,85,85,.3)}
+.edit-mode .delete-btn{display:flex}
+.add-block-area{
+  display:none;margin-top:12px;
+  background:var(--bg2);border:1px dashed rgba(201,152,58,.3);
+  border-radius:var(--radius);padding:16px;
+}
+.edit-mode+.add-block-area,.show-add{display:block}
+.add-form{display:flex;flex-direction:column;gap:10px}
+.add-form input,.add-form select,.add-form textarea{
+  padding:9px 13px;border-radius:9px;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-size:.82rem;font-family:inherit;
+}
+.add-form input:focus,.add-form select:focus,.add-form textarea:focus{
+  outline:none;border-color:var(--gold);
+}
+.add-form select option{background:var(--bg3);color:var(--text)}
+.add-form textarea{resize:none;min-height:55px;line-height:1.5}
+.add-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.add-submit{
+  padding:10px;border-radius:10px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#09101f;font-weight:700;font-size:.82rem;
+  font-family:'Plus Jakarta Sans',sans-serif;transition:opacity .18s;
+}
+.add-submit:hover{opacity:.85}
+.add-section-title{
+  font-size:.7rem;color:var(--gold);font-weight:700;
+  letter-spacing:1px;margin-bottom:10px;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-size:.78rem;padding:9px 18px;border-radius:20px;
+  opacity:0;transition:all .3s;pointer-events:none;z-index:999;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── RESPONSIVE DESKTOP TWEAKS ── */
+@media(min-width:640px){
+  body{padding-bottom:20px}
+  .bottom-nav{display:none}
+  .desktop-tabs{
+    display:flex;gap:8px;padding:16px 20px 0;flex-wrap:wrap;
+  }
+  .desktop-tab{
+    padding:8px 18px;border-radius:24px;cursor:pointer;
+    font-size:.78rem;font-weight:600;letter-spacing:.4px;
+    border:1px solid var(--border);background:var(--bg3);
+    color:var(--muted);transition:all .2s;white-space:nowrap;
+    font-family:'Plus Jakarta Sans',sans-serif;
+  }
+  .desktop-tab:hover{color:var(--text);border-color:var(--gold)}
+  .desktop-tab.active{
+    background:linear-gradient(135deg,var(--gold),var(--gold2));
+    color:#09101f;border-color:transparent;font-weight:700;
+  }
+  .content{padding:18px 20px 20px}
+  .goals-grid-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .goals-grid-wrap .card{margin-bottom:0}
+  .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .res-grid .card{margin-bottom:0}
+  .sched-block{grid-template-columns:90px 1fr auto}
+}
+@media(max-width:639px){
+  .desktop-tabs{display:none}
+  .sched-block{grid-template-columns:72px 1fr}
+  .sched-tag{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">⟡ LIFE DASHBOARD</div>
+  <div class="topbar-right">
+    <div class="badge ramadan">🌙 Ramadan — Day <span id="ramadan-day">3</span></div>
+    <div class="badge" id="today-date">—</div>
+  </div>
+</div>
+
+<!-- Desktop tabs -->
+<div class="desktop-tabs">
+  <div class="desktop-tab active" onclick="showTab('schedule',this)">📅 Schedule</div>
+  <div class="desktop-tab" onclick="showTab('rotation',this)">🔄 Rotation</div>
+  <div class="desktop-tab" onclick="showTab('habits',this)">✅ Habits</div>
+  <div class="desktop-tab" onclick="showTab('goals',this)">🎯 Goals</div>
+  <div class="desktop-tab" onclick="showTab('books',this)">📚 Books</div>
+  <div class="desktop-tab" onclick="showTab('resources',this)">🔗 Resources</div>
+</div>
+
+<div class="content">
+
+<!-- ══ SCHEDULE ══ -->
+<div class="section active" id="sec-schedule">
+  <div class="sec-title">
+    TODAY'S ROUTINE
+    <button class="edit-btn" id="sched-edit-btn" onclick="toggleEditMode('schedule')">✏️ Edit</button>
+  </div>
+  <div id="schedule-list"></div>
+  <div class="add-block-area" id="sched-add-area">
+    <div class="add-section-title">+ ADD NEW TIME BLOCK</div>
+    <div class="add-form">
+      <div class="add-form-row">
+        <input type="text" id="new-sched-time" placeholder="Time (e.g. 5:00 AM)"/>
+        <select id="new-sched-tag">
+          <option value="prayer">🕌 Prayer</option>
+          <option value="work">💻 Work/Study</option>
+          <option value="body">🏋️ Physical</option>
+          <option value="sleep">💤 Sleep</option>
+          <option value="biz">🏪 Business</option>
+        </select>
+      </div>
+      <input type="text" id="new-sched-name" placeholder="Block title (e.g. IELTS Practice)"/>
+      <textarea id="new-sched-desc" placeholder="Short description..."></textarea>
+      <button class="add-submit" onclick="addScheduleBlock()">ADD BLOCK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ROTATION ══ -->
+<div class="section" id="sec-rotation">
+  <div class="sec-title">WEEKLY ROTATION</div>
+  <div id="rotation-list"></div>
+</div>
+
+<!-- ══ HABITS ══ -->
+<div class="section" id="sec-habits">
+  <div class="sec-title">
+    HABIT TRACKER
+    <button class="edit-btn" id="habits-edit-btn" onclick="toggleEditMode('habits')">✏️ Edit</button>
+  </div>
+  <div id="habits-list"></div>
+  <div class="add-block-area" id="habits-add-area">
+    <div class="add-section-title">+ ADD NEW HABIT</div>
+    <div class="add-form">
+      <input type="text" id="new-habit-name" placeholder="Habit name (e.g. Cold Shower)"/>
+      <input type="text" id="new-habit-desc" placeholder="Short note (e.g. 2 min minimum)"/>
+      <select id="new-habit-color">
+        <option value="var(--gold)">🟡 Gold</option>
+        <option value="var(--teal)">🟢 Teal</option>
+        <option value="var(--blue)">🔵 Blue</option>
+        <option value="var(--red)">🔴 Red</option>
+        <option value="var(--purple)">🟣 Purple</option>
+        <option value="var(--pink)">🩷 Pink</option>
+        <option value="var(--green)">💚 Green</option>
+      </select>
+      <button class="add-submit" onclick="addHabit()">ADD HABIT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GOALS ══ -->
+<div class="section" id="sec-goals">
+  <div class="sec-title">
+    ACTIVE GOALS
+    <button class="edit-btn" id="goals-edit-btn" onclick="toggleEditMode('goals')">✏️ Edit</button>
+  </div>
+  <div class="goals-grid-wrap" id="goals-list"></div>
+  <div class="add-block-area" id="goals-add-area">
+    <div class="add-section-title">+ ADD NEW GOAL</div>
+    <div class="add-form">
+      <div class="add-form-row">
+        <input type="text" id="new-goal-emoji" placeholder="Emoji (e.g. 🚀)"/>
+        <input type="text" id="new-goal-title" placeholder="Goal title"/>
+      </div>
+      <textarea id="new-goal-desc" placeholder="Description / target..."></textarea>
+      <input type="text" id="new-goal-tasks" placeholder="Tasks (comma separated)"/>
+      <button class="add-submit" onclick="addGoal()">ADD GOAL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BOOKS ══ -->
+<div class="section" id="sec-books">
+  <div class="sec-title">
+    READING LIST
+    <button class="edit-btn" id="books-edit-btn" onclick="toggleEditMode('books')">✏️ Edit</button>
+  </div>
+  <div id="books-list"></div>
+  <div class="add-block-area" id="books-add-area">
+    <div class="add-section-title">+ ADD NEW BOOK</div>
+    <div class="add-form">
+      <div class="add-form-row">
+        <input type="text" id="new-book-emoji" placeholder="Emoji (e.g. 📖)"/>
+        <input type="text" id="new-book-title" placeholder="Book title"/>
+      </div>
+      <div class="add-form-row">
+        <input type="text" id="new-book-author" placeholder="Author"/>
+        <input type="number" id="new-book-total" placeholder="Total pages" min="1"/>
+      </div>
+      <select id="new-book-status">
+        <option value="reading">Currently Reading</option>
+        <option value="queued">Up Next</option>
+        <option value="done">Finished</option>
+      </select>
+      <button class="add-submit" onclick="addBook()">ADD BOOK</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ RESOURCES ══ -->
+<div class="section" id="sec-resources">
+  <div class="sec-title">FREE RESOURCES</div>
+  <div class="res-grid" id="resources-list"></div>
+</div>
+
+</div>
+
+<!-- Mobile Bottom Nav -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showTab('schedule',this)" data-tab="schedule">
+    <span class="nav-icon">📅</span>Schedule
+  </button>
+  <button class="nav-item" onclick="showTab('rotation',this)" data-tab="rotation">
+    <span class="nav-icon">🔄</span>Rotation
+  </button>
+  <button class="nav-item" onclick="showTab('habits',this)" data-tab="habits">
+    <span class="nav-icon">✅</span>Habits
+  </button>
+  <button class="nav-item" onclick="showTab('goals',this)" data-tab="goals">
+    <span class="nav-icon">🎯</span>Goals
+  </button>
+  <button class="nav-item" onclick="showTab('books',this)" data-tab="books">
+    <span class="nav-icon">📚</span>Books
+  </button>
+  <button class="nav-item" onclick="showTab('resources',this)" data-tab="resources">
+    <span class="nav-icon">🔗</span>Links
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA DEFAULTS
+// ══════════════════════════════════════════
+const DEFAULT_SCHEDULE = [
+  {id:'s1',time:'4:15 AM',name:'🌙 Suhoor + Fajr',desc:'Eat well, hydrate, pray Fajr. Stay awake — golden hours.',tag:'prayer'},
+  {id:'s2',time:'4:45 AM',name:'📖 IELTS Deep Work',desc:'Reading + Listening. Brain is sharpest. Band 9 target.',tag:'work'},
+  {id:'s3',time:'6:30 AM',name:'💤 Recovery Sleep',desc:'Hard alarm at 8:00 AM. 90 min recovery, no more.',tag:'sleep'},
+  {id:'s4',time:'8:00 AM',name:'🏋️ Gym / Workout',desc:'Push/Pull/Legs rotation. Fasting-friendly, keep energy stable.',tag:'body'},
+  {id:'s5',time:'9:00 AM',name:'💻 Skills Block',desc:'Alternate: Data Analytics cert OR Arabic (Duolingo/Madinah). 30 min Arabic minimum.',tag:'work'},
+  {id:'s6',time:'12:00 PM',name:'🕌 Dhuhr + Break',desc:'Pray, rest eyes. No screens for 20 min.',tag:'prayer'},
+  {id:'s7',time:'12:30 PM',name:'✈️ Immigration Work',desc:'SEEK / Job Bank apps, BRTA upgrade, docs checklist, visa research.',tag:'work'},
+  {id:'s8',time:'2:00 PM',name:'🏪 Nayabazar Business',desc:'Family bond paper business — operations, accounts, strategy.',tag:'biz'},
+  {id:'s9',time:'3:00 PM',name:'💼 Side Income / Portfolio',desc:'Marketing work, photography edits, client outreach, business modeling.',tag:'work'},
+  {id:'s10',time:'3:30 PM',name:'🕌 Asr + Reading',desc:'Pray Asr. Read 20 pages of Master Your Emotions. Note one insight.',tag:'prayer'},
+  {id:'s11',time:'4:30 PM',name:'🌅 Quran + Iftar Prep',desc:'Recite Quran, prepare food. Slow this hour. Phone away.',tag:'prayer'},
+  {id:'s12',time:'6:15 PM',name:'🌙 Iftar + Maghrib',desc:'Break fast. Pray Maghrib immediately — do not delay.',tag:'prayer'},
+  {id:'s13',time:'7:30 PM',name:'🕌 Isha + Tarawih',desc:'Full Tarawih. Core of the transformation.',tag:'prayer'},
+  {id:'s14',time:'9:00 PM',name:'📓 Journal + Review',desc:'Write: what you did, tomorrow\'s #1 priority. Phone away after this.',tag:'work'},
+  {id:'s15',time:'10:00 PM',name:'💤 Sleep — Hard Cutoff',desc:'Everything breaks without sleep. Protect it like Fajr.',tag:'sleep'},
+];
+
+const DEFAULT_HABITS = [
+  {id:'h1',name:'Fajr Prayer',desc:'Wake up + pray on time',color:'var(--gold)'},
+  {id:'h2',name:'Dhuhr Prayer',desc:'Pray on time',color:'var(--gold)'},
+  {id:'h3',name:'Asr Prayer',desc:'Pray on time',color:'var(--gold)'},
+  {id:'h4',name:'Maghrib + Isha + Tarawih',desc:'Full Tarawih every night',color:'var(--gold)'},
+  {id:'h5',name:'IELTS Practice',desc:'45 min minimum',color:'var(--blue)'},
+  {id:'h6',name:'Arabic Study',desc:'30 min — Duolingo or Madinah Arabic',color:'var(--gold)'},
+  {id:'h7',name:'Gym / Workout',desc:'PPL rotation',color:'var(--red)'},
+  {id:'h8',name:'Read (20 pages)',desc:'Master Your Emotions',color:'var(--pink)'},
+  {id:'h9',name:'Nayabazar',desc:'Show up + contribute',color:'var(--red)'},
+  {id:'h10',name:'Journal / Notebook',desc:'Write before sleep',color:'var(--green)'},
+  {id:'h11',name:'Phone Away by 10 PM',desc:'Hard cutoff — no exceptions',color:'var(--purple)'},
+  {id:'h12',name:'Immigration Work',desc:'Apps, docs, or research',color:'var(--teal)'},
+];
+
+const DEFAULT_GOALS = [
+  {id:'g1',emoji:'📝',title:'IELTS — BAND 9',desc:'Book exam → Practice daily → Target Band 9. Unlocks AU 482, CA LMIA, UK Skilled Worker.',color:'linear-gradient(90deg,#3578c8,#19b8a0)',
+    tasks:['Book IELTS exam date','Complete 5 full mock tests','Score Band 7.5+ on mock','Speaking practice 3x/week']},
+  {id:'g2',emoji:'🌙',title:'ARABIC LANGUAGE',desc:'Quranic Arabic first, then MSA. 30 min daily minimum. Read Quran with understanding.',color:'linear-gradient(90deg,var(--gold),var(--gold2))',
+    tasks:['Learn all Arabic letters','Complete Madinah Arabic Book 1','30-day Duolingo streak','Read Surah Al-Fatiha with full understanding']},
+  {id:'g3',emoji:'✈️',title:'IMMIGRATION — AU / CA / UK',desc:'Australia #1 (482 Driver), Canada #2 (LMIA+SINP), UK #3 (Marketing). Apply simultaneously.',color:'linear-gradient(90deg,#38c870,#19b8a0)',
+    tasks:['BRTA professional license upgrade','Police clearance certificate','NSU transcripts + IDP','Submit first AU 482 application','Submit first CA LMIA application']},
+  {id:'g4',emoji:'💪',title:'GYM & PHYSICAL',desc:'Push/Pull/Legs split during Ramadan. Fasting-friendly. Build discipline, not just muscle.',color:'linear-gradient(90deg,#e05555,#f08a5a)',
+    tasks:['Complete 30 consecutive gym days','No missed sessions this week','Track meals post-Ramadan']},
+  {id:'g5',emoji:'🏪',title:'NAYABAZAR + SIDE INCOME',desc:'Contribute to family bond paper business. Build parallel income via marketing before immigration.',color:'linear-gradient(90deg,#7a5abf,#3578c8)',
+    tasks:['Create marketing portfolio PDF','Land first freelance client','Strategize Nayabazar growth plan']},
+  {id:'g6',emoji:'💻',title:'DATA ANALYTICS CERT',desc:'Complete Microsoft Data Analytics certification. Adds technical credibility to immigration + marketing CV.',color:'linear-gradient(90deg,#19b8a0,#3578c8)',
+    tasks:['Finish Module 1–3','Complete all labs','Pass final assessment','Add cert to LinkedIn']},
+];
+
+const DEFAULT_BOOKS = [
+  {id:'b1',emoji:'🧠',title:'Master Your Emotions',author:'Thibaut Meurisse',totalPages:220,currentPage:20,status:'reading',notes:'Chapter 1–2 done. Feeling better. Key insight: emotions are not facts.'},
+  {id:'b2',emoji:'🌙',title:'Arabic Learning Journal',author:'Self-study',totalPages:0,currentPage:0,status:'reading',notes:'Daily vocab + Madinah Arabic notes go here.'},
+  {id:'b3',emoji:'🌍',title:'The Alchemist',author:'Paulo Coelho',totalPages:208,currentPage:0,status:'queued',notes:''},
+];
+
+const ROTATION_DATA = [
+  {day:'Saturday',key:'sat',pills:[
+    {label:'IELTS Reading',cls:'p-ielts'},{label:'Gym — Push',cls:'p-gym'},
+    {label:'Data Analytics Cert',cls:'p-data'},{label:'Nayabazar',cls:'p-biz'},{label:'Master Your Emotions',cls:'p-book'}
+  ]},
+  {day:'Sunday',key:'sun',pills:[
+    {label:'IELTS Listening',cls:'p-ielts'},{label:'Gym — Pull',cls:'p-gym'},
+    {label:'Arabic — Duolingo + Madinah',cls:'p-arabic'},{label:'Immigration Docs',cls:'p-docs'},{label:'Master Your Emotions',cls:'p-book'}
+  ]},
+  {day:'Monday',key:'mon',pills:[
+    {label:'IELTS Writing',cls:'p-ielts'},{label:'Gym — Legs',cls:'p-gym'},
+    {label:'Data Analytics Cert',cls:'p-data'},{label:'Nayabazar + Side Income',cls:'p-biz'},{label:'Arabic Revision',cls:'p-arabic'}
+  ]},
+  {day:'Tuesday',key:'tue',pills:[
+    {label:'IELTS Speaking',cls:'p-ielts'},{label:'Gym — Push',cls:'p-gym'},
+    {label:'Arabic — New Lesson',cls:'p-arabic'},{label:'Immigration Applications',cls:'p-docs'},{label:'Master Your Emotions',cls:'p-book'}
+  ]},
+  {day:'Wednesday',key:'wed',pills:[
+    {label:'IELTS Mock Test',cls:'p-ielts'},{label:'Gym — Pull',cls:'p-gym'},
+    {label:'Data Analytics Cert',cls:'p-data'},{label:'Nayabazar Strategy',cls:'p-biz'},{label:'Arabic Vocab Review',cls:'p-arabic'}
+  ]},
+  {day:'Thursday',key:'thu',pills:[
+    {label:'IELTS Reading',cls:'p-ielts'},{label:'Gym — Legs',cls:'p-gym'},
+    {label:'Arabic — Quran Listening',cls:'p-arabic'},{label:'Side Income / Portfolio',cls:'p-biz'},{label:'Master Your Emotions',cls:'p-book'}
+  ]},
+  {day:'Friday',key:'fri',pills:[
+    {label:"Jumu'ah + Rest",cls:'p-rest'},{label:'Arabic — Quran Focus',cls:'p-arabic'},
+    {label:'Light Walk Only',cls:'p-rest'},{label:'Weekly Review + Journal',cls:'p-docs'},{label:'Master Your Emotions',cls:'p-book'}
+  ]},
+];
+
+const RESOURCES_DATA = [
+  {group:'📝 IELTS',links:[
+    {icon:'🎯',name:'IELTS Liz',desc:'Band 7–9 lessons, 300+ free pages',url:'https://ieltsliz.com'},
+    {icon:'🇬🇧',name:'British Council Prep',desc:'Official tests, all 4 modules',url:'https://takeielts.britishcouncil.org/take-ielts/prepare'},
+    {icon:'📊',name:'IELTS Online Tests',desc:'Mock tests with instant band score',url:'https://ieltsonlinetests.com'},
+    {icon:'💬',name:'IELTSBuddy',desc:'Practice tests + sample answers',url:'https://ieltsbuddy.com'},
+  ]},
+  {group:'🌙 Arabic',links:[
+    {icon:'📖',name:'Madinah Arabic',desc:'Free Quranic Arabic — best for Muslims',url:'https://www.madinaharabic.com'},
+    {icon:'🦉',name:'Duolingo Arabic',desc:'Daily streaks, gamified learning',url:'https://www.duolingo.com/course/ar/en/Learn-Arabic'},
+    {icon:'ا',name:'AlifBee',desc:'Reads, writes & speaks Arabic',url:'https://alifbee.com'},
+    {icon:'🧠',name:'Memrise Arabic',desc:'Spaced repetition + native speaker audio',url:'https://www.memrise.com/courses/english/arabic/'},
+  ]},
+  {group:'✅ Habit Trackers',links:[
+    {icon:'🎮',name:'Habitica',desc:'Gamified habits — life as an RPG',url:'https://habitica.com'},
+    {icon:'📱',name:'Loop Habit Tracker',desc:'Android, 100% free, open source',url:'https://github.com/iSoron/uhabits'},
+    {icon:'📚',name:'Athenify',desc:'Study tracker with streaks + Pomodoro',url:'https://athenify.io'},
+    {icon:'⚡',name:'ClickUp Free',desc:'Day planner + habit tracker + calendar',url:'https://clickup.com'},
+  ]},
+  {group:'✈️ Immigration',links:[
+    {icon:'🇦🇺',name:'SEEK — Australia',desc:'AU jobs — search 482 Truck Driver',url:'https://www.seek.com.au'},
+    {icon:'🇨🇦',name:'Job Bank — Canada',desc:'Official CA LMIA jobs',url:'https://www.jobbank.gc.ca'},
+    {icon:'💼',name:'LinkedIn Jobs',desc:'UK Digital Marketing roles',url:'https://www.linkedin.com/jobs'},
+    {icon:'🇩🇪',name:'Germany Chancenkarte',desc:'Official points system info',url:'https://www.make-it-in-germany.com/en/visa-residence/chancenkarte'},
+  ]},
+  {group:'💻 Data Analytics',links:[
+    {icon:'📊',name:'Microsoft Learn',desc:'Free official MS learning paths',url:'https://learn.microsoft.com/en-us/training/'},
+    {icon:'🤖',name:'Kaggle Learn',desc:'Free data analysis + Python + SQL',url:'https://www.kaggle.com/learn'},
+    {icon:'🎓',name:'Coursera (Audit Free)',desc:'MS Power BI Data Analyst cert',url:'https://www.coursera.org/professional-certificates/microsoft-power-bi-data-analyst'},
+  ]},
+];
+
+// ══════════════════════════════════════════
+//  STORAGE HELPERS
+// ══════════════════════════════════════════
+const WEEK_KEY = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-W${getWeekNum(d)}`;
+};
+function getWeekNum(d){
+  const s=new Date(d.getFullYear(),0,1);
+  return Math.ceil((((d-s)/86400000)+s.getDay()+1)/7);
+}
+function load(key,def){try{const v=localStorage.getItem(key);return v?JSON.parse(v):def}catch{return def}}
+function save(key,val){try{localStorage.setItem(key,JSON.stringify(val))}catch{}}
+
+let scheduleData = load('db_schedule', DEFAULT_SCHEDULE);
+let habitsData   = load('db_habits',   DEFAULT_HABITS);
+let goalsData    = load('db_goals',    DEFAULT_GOALS);
+let booksData    = load('db_books',    DEFAULT_BOOKS);
+let habitChecks  = load('db_checks_'+WEEK_KEY(), {});
+let goalChecks   = load('db_goal_checks', {});
+let bookData2    = load('db_book_data', {});
+
+function saveAll(){
+  save('db_schedule', scheduleData);
+  save('db_habits', habitsData);
+  save('db_goals', goalsData);
+  save('db_books', booksData);
+  save('db_checks_'+WEEK_KEY(), habitChecks);
+  save('db_goal_checks', goalChecks);
+  save('db_book_data', bookData2);
+}
+
+// ══════════════════════════════════════════
+//  TAB SWITCHING
+// ══════════════════════════════════════════
+function showTab(id, el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.desktop-tab,.nav-item').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  el.classList.add('active');
+  // sync desktop + mobile
+  document.querySelectorAll('[data-tab="'+id+'"]').forEach(t=>t.classList.add('active'));
+}
+
+// ══════════════════════════════════════════
+//  EDIT MODE
+// ══════════════════════════════════════════
+const editModes = {};
+function toggleEditMode(section){
+  editModes[section] = !editModes[section];
+  const btn = document.getElementById(section+'-edit-btn');
+  const addArea = document.getElementById(section+'-add-area');
+  const list = document.getElementById(section+'-list');
+  if(editModes[section]){
+    btn.textContent='✅ Done';btn.classList.add('active');
+    addArea.style.display='block';
+    list.classList.add('edit-mode');
+  } else {
+    btn.textContent='✏️ Edit';btn.classList.remove('active');
+    addArea.style.display='none';
+    list.classList.remove('edit-mode');
+  }
+}
+
+// ══════════════════════════════════════════
+//  SCHEDULE
+// ══════════════════════════════════════════
+const TAG_MAP = {prayer:'tag-prayer',work:'tag-work',body:'tag-body',sleep:'tag-sleep',biz:'tag-biz'};
+const TAG_LABELS = {prayer:'PRAYER',work:'STUDY/WORK',body:'PHYSICAL',sleep:'SLEEP',biz:'BUSINESS'};
+
+function renderSchedule(){
+  const list = document.getElementById('schedule-list');
+  list.innerHTML = '';
+  scheduleData.forEach(b=>{
+    const el = document.createElement('div');
+    el.className='card';
+    el.innerHTML=`<div class="sched-block">
+      <div class="sched-time">${b.time}</div>
+      <div>
+        <div class="sched-name">${b.name}</div>
+        <div class="sched-desc">${b.desc}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="sched-tag ${TAG_MAP[b.tag]||'tag-work'}">${TAG_LABELS[b.tag]||'WORK'}</span>
+        <button class="delete-btn" onclick="deleteBlock('schedule','${b.id}')">✕</button>
+      </div>
+    </div>`;
+    list.appendChild(el);
+  });
+  if(editModes['schedule']) list.classList.add('edit-mode');
+}
+
+function addScheduleBlock(){
+  const time=document.getElementById('new-sched-time').value.trim();
+  const name=document.getElementById('new-sched-name').value.trim();
+  const desc=document.getElementById('new-sched-desc').value.trim();
+  const tag=document.getElementById('new-sched-tag').value;
+  if(!time||!name){showToast('Please fill time and title');return;}
+  scheduleData.push({id:'s'+Date.now(),time,name,desc,tag});
+  saveAll(); renderSchedule();
+  document.getElementById('new-sched-time').value='';
+  document.getElementById('new-sched-name').value='';
+  document.getElementById('new-sched-desc').value='';
+  showToast('Block added ✓');
+}
+
+function deleteBlock(section, id){
+  if(section==='schedule'){scheduleData=scheduleData.filter(b=>b.id!==id);renderSchedule();}
+  else if(section==='habits'){habitsData=habitsData.filter(b=>b.id!==id);renderHabits();}
+  else if(section==='goals'){goalsData=goalsData.filter(b=>b.id!==id);renderGoals();}
+  else if(section==='books'){booksData=booksData.filter(b=>b.id!==id);renderBooks();}
+  saveAll(); showToast('Removed');
+}
+
+// ══════════════════════════════════════════
+//  HABITS
+// ══════════════════════════════════════════
+const WEEK_DAYS = ['Sat','Sun','Mon','Tue','Wed','Thu','Fri'];
+const today = new Date();
+const todayDayIdx = (today.getDay()+6)%7; // 0=Sat
+
+function renderHabits(){
+  const list = document.getElementById('habits-list');
+  list.innerHTML='';
+  habitsData.forEach(h=>{
+    let streak = 0;
+    WEEK_DAYS.forEach((_,di)=>{
+      if(habitChecks[h.id+'_'+di]) streak++;
+    });
+    let daysHTML='';
+    WEEK_DAYS.forEach((d,di)=>{
+      const cbId=`hc_${h.id}_${di}`;
+      const checked=habitChecks[h.id+'_'+di]?'checked':'';
+      const isToday=di===todayDayIdx;
+      daysHTML+=`<div class="day-btn-wrap">
+        <span class="day-label-txt" style="${isToday?'color:var(--gold2);font-weight:700':''}">${d}</span>
+        <input type="checkbox" class="day-cb" id="${cbId}" ${checked} onchange="toggleHabit('${h.id}',${di},this)"/>
+        <label for="${cbId}" class="day-box">✓</label>
+      </div>`;
+    });
+    const el=document.createElement('div');
+    el.className='card habit-card';
+    el.innerHTML=`
+      <div class="habit-header">
+        <div class="habit-name-txt" style="border-left:3px solid ${h.color};padding-left:10px">
+          ${h.name}<span class="habit-sub">${h.desc}</span>
+        </div>
+        <div class="habit-streak">${streak} 🔥</div>
+        <button class="delete-btn" onclick="deleteBlock('habits','${h.id}')">✕</button>
+      </div>
+      <div class="day-row">${daysHTML}</div>`;
+    list.appendChild(el);
+  });
+  if(editModes['habits']) list.classList.add('edit-mode');
+}
+
+function toggleHabit(hid,di,el){
+  habitChecks[hid+'_'+di]=el.checked;
+  saveAll();
+  // update streak badge
+  let streak=0;
+  WEEK_DAYS.forEach((_,i)=>{if(habitChecks[hid+'_'+i])streak++;});
+  const cards=[...document.querySelectorAll('.habit-card')];
+  cards.forEach(c=>{
+    if(c.querySelector(`[id^="hc_${hid}_"]`)){
+      c.querySelector('.habit-streak').textContent=streak+' 🔥';
+    }
+  });
+}
+
+function addHabit(){
+  const name=document.getElementById('new-habit-name').value.trim();
+  const desc=document.getElementById('new-habit-desc').value.trim();
+  const color=document.getElementById('new-habit-color').value;
+  if(!name){showToast('Please enter a habit name');return;}
+  habitsData.push({id:'h'+Date.now(),name,desc,color});
+  saveAll(); renderHabits();
+  document.getElementById('new-habit-name').value='';
+  document.getElementById('new-habit-desc').value='';
+  showToast('Habit added ✓');
+}
+
+// ══════════════════════════════════════════
+//  GOALS
+// ══════════════════════════════════════════
+function renderGoals(){
+  const list=document.getElementById('goals-list');
+  list.innerHTML='';
+  goalsData.forEach(g=>{
+    const tasks=g.tasks||[];
+    const done=tasks.filter((_,i)=>goalChecks[g.id+'_'+i]).length;
+    const pct=tasks.length?Math.round(done/tasks.length*100):0;
+    let tasksHTML=tasks.map((t,i)=>{
+      const chk=goalChecks[g.id+'_'+i]?'checked':'';
+      return `<label class="task-item">
+        <input type="checkbox" ${chk} onchange="toggleGoalTask('${g.id}',${i},this)"/>
+        <div class="task-dot">✓</div>
+        <span class="task-lbl">${t}</span>
+      </label>`;
+    }).join('');
+    const el=document.createElement('div');
+    el.className='card goal-card';
+    el.style.cssText='border-top:3px solid transparent;border-image:'+g.color+' 1';
+    el.innerHTML=`
+      <div class="goal-top">
+        <div class="goal-emoji">${g.emoji}</div>
+        <div class="goal-info">
+          <div class="goal-title-txt">${g.title}</div>
+          <div class="goal-desc">${g.desc}</div>
+        </div>
+        <button class="delete-btn" onclick="deleteBlock('goals','${g.id}')">✕</button>
+      </div>
+      <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%;background:${g.color}"></div></div>
+      <div class="progress-lbl"><span>${done}/${tasks.length} tasks</span><span>${pct}%</span></div>
+      <div class="task-list">${tasksHTML}</div>`;
+    list.appendChild(el);
+  });
+  if(editModes['goals']) list.classList.add('edit-mode');
+}
+
+function toggleGoalTask(gid,idx,el){
+  goalChecks[gid+'_'+idx]=el.checked;
+  saveAll(); renderGoals();
+}
+
+function addGoal(){
+  const emoji=document.getElementById('new-goal-emoji').value.trim()||'🎯';
+  const title=document.getElementById('new-goal-title').value.trim();
+  const desc=document.getElementById('new-goal-desc').value.trim();
+  const tasksRaw=document.getElementById('new-goal-tasks').value.trim();
+  if(!title){showToast('Please enter a goal title');return;}
+  const tasks=tasksRaw?tasksRaw.split(',').map(t=>t.trim()).filter(Boolean):[];
+  const colors=['linear-gradient(90deg,#3578c8,#19b8a0)','linear-gradient(90deg,var(--gold),var(--gold2))','linear-gradient(90deg,#38c870,#19b8a0)','linear-gradient(90deg,#e05555,#f08a5a)','linear-gradient(90deg,#7a5abf,#3578c8)'];
+  const color=colors[Math.floor(Math.random()*colors.length)];
+  goalsData.push({id:'g'+Date.now(),emoji,title,desc,color,tasks});
+  saveAll(); renderGoals();
+  ['new-goal-emoji','new-goal-title','new-goal-desc','new-goal-tasks'].forEach(id=>document.getElementById(id).value='');
+  showToast('Goal added ✓');
+}
+
+// ══════════════════════════════════════════
+//  BOOKS
+// ══════════════════════════════════════════
+function renderBooks(){
+  const list=document.getElementById('books-list');
+  list.innerHTML='';
+  booksData.forEach(b=>{
+    const saved=bookData2[b.id]||{};
+    const curPage=saved.currentPage!==undefined?saved.currentPage:b.currentPage;
+    const notes=saved.notes!==undefined?saved.notes:b.notes;
+    const total=b.totalPages||0;
+    const pct=total>0?Math.min(100,Math.round(curPage/total*100)):0;
+    const statusMap={reading:'status-reading',done:'status-done',queued:'status-queued'};
+    const statusLabel={reading:'Currently Reading',done:'Finished ✓',queued:'Up Next'};
+    const colors={reading:'var(--teal)',done:'var(--green)',queued:'var(--muted)'};
+    const el=document.createElement('div');
+    el.className='card book-card';
+    el.innerHTML=`
+      <div class="book-header">
+        <div class="book-cover" style="background:rgba(201,152,58,0.08)">${b.emoji}</div>
+        <div class="book-meta">
+          <div class="book-title-txt">${b.title}</div>
+          <div class="book-author">${b.author}</div>
+          <span class="book-status ${statusMap[b.status]}">${statusLabel[b.status]}</span>
+        </div>
+        <button class="delete-btn" onclick="deleteBlock('books','${b.id}')">✕</button>
+      </div>
+      ${total>0?`
+      <div class="book-progress-area">
+        <div class="page-input-row">
+          <span style="font-size:.75rem;color:var(--muted)">Page:</span>
+          <input type="number" class="page-input" value="${curPage}" min="0" max="${total}"
+            onchange="updateBookPage('${b.id}',this.value,${total})" oninput="updateBookPage('${b.id}',this.value,${total})"/>
+          <span class="page-total-lbl">of ${total} — ${pct}%</span>
+        </div>
+        <div class="progress-wrap"><div class="progress-fill" style="width:${pct}%;background:${colors[b.status]}"></div></div>
+      </div>`:''}
+      <textarea class="book-notes" placeholder="Notes, insights, quotes..."
+        onchange="updateBookNotes('${b.id}',this.value)">${notes}</textarea>`;
+    list.appendChild(el);
+  });
+  if(editModes['books']) list.classList.add('edit-mode');
+}
+
+function updateBookPage(bid,val,total){
+  const p=Math.max(0,Math.min(total,parseInt(val)||0));
+  if(!bookData2[bid]) bookData2[bid]={};
+  bookData2[bid].currentPage=p;
+  saveAll();
+  // update progress bar inline
+  const pct=total>0?Math.min(100,Math.round(p/total*100)):0;
+  const cards=[...document.querySelectorAll('.book-card')];
+  cards.forEach(c=>{
+    const inp=c.querySelector('.page-input');
+    if(inp && c.querySelector('[onchange*="'+bid+'"]')){
+      c.querySelector('.page-total-lbl').textContent=`of ${total} — ${pct}%`;
+      const bar=c.querySelector('.progress-fill');
+      if(bar) bar.style.width=pct+'%';
+    }
+  });
+}
+
+function updateBookNotes(bid,val){
+  if(!bookData2[bid]) bookData2[bid]={};
+  bookData2[bid].notes=val;
+  saveAll();
+}
+
+function addBook(){
+  const emoji=document.getElementById('new-book-emoji').value.trim()||'📖';
+  const title=document.getElementById('new-book-title').value.trim();
+  const author=document.getElementById('new-book-author').value.trim()||'—';
+  const total=parseInt(document.getElementById('new-book-total').value)||0;
+  const status=document.getElementById('new-book-status').value;
+  if(!title){showToast('Please enter book title');return;}
+  booksData.push({id:'b'+Date.now(),emoji,title,author,totalPages:total,currentPage:0,status,notes:''});
+  saveAll(); renderBooks();
+  ['new-book-emoji','new-book-title','new-book-author','new-book-total'].forEach(id=>document.getElementById(id).value='');
+  showToast('Book added ✓');
+}
+
+// ══════════════════════════════════════════
+//  ROTATION
+// ══════════════════════════════════════════
+function renderRotation(){
+  const list=document.getElementById('rotation-list');
+  const dayKeys=['sat','sun','mon','tue','wed','thu','fri'];
+  const todayKey=dayKeys[(today.getDay()+6)%7];
+  ROTATION_DATA.forEach(r=>{
+    const isToday=r.key===todayKey;
+    const el=document.createElement('div');
+    el.className='card rot-day'+(isToday?' today-rot':'');
+    el.innerHTML=`<div class="rot-day-hdr">${isToday?'📍':'🗓️'} ${r.day} ${isToday?'<span class="today-chip">TODAY</span>':''}</div>
+      <div class="pill-row">${r.pills.map(p=>`<span class="pill ${p.cls}">${p.label}</span>`).join('')}</div>`;
+    list.appendChild(el);
+  });
+}
+
+// ══════════════════════════════════════════
+//  RESOURCES
+// ══════════════════════════════════════════
+function renderResources(){
+  const grid=document.getElementById('resources-list');
+  RESOURCES_DATA.forEach(g=>{
+    const el=document.createElement('div');
+    el.className='card res-group';
+    el.innerHTML=`<div class="res-group-title">${g.group}</div>`+
+      g.links.map(l=>`<a class="res-link" href="${l.url}" target="_blank" rel="noopener">
+        <span class="res-icon">${l.icon}</span>
+        <div><div class="res-name">${l.name}</div><div class="res-desc">${l.desc}</div></div>
+        <span class="res-badge">FREE</span>
+      </a>`).join('');
+    grid.appendChild(el);
+  });
+}
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// ══════════════════════════════════════════
+//  DATE + INIT
+// ══════════════════════════════════════════
+document.getElementById('today-date').textContent=
+  today.toLocaleDateString('en-BD',{weekday:'short',month:'short',day:'numeric'});
+
+// Ramadan day auto-calc (Ramadan 1446 started March 1, 2026)
+const ramStart=new Date('2026-03-01');
+const ramDay=Math.floor((today-ramStart)/86400000)+1;
+document.getElementById('ramadan-day').textContent=Math.max(1,Math.min(30,ramDay));
+
+renderSchedule();
+renderRotation();
+renderHabits();
+renderGoals();
+renderBooks();
+renderResources();
+</script>
+</body>
+</html>
