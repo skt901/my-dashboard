@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"/>
+<title>LIFE OS — Personal Command Centre</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#09101f;--bg2:#101828;--bg3:#162035;--bg4:#1c2840;
+  --gold:#c9983a;--gold2:#f0c45a;--teal:#1db8a4;
+  --blue:#3578c8;--red:#e05555;--green:#38c870;
+  --purple:#7a5abf;--pink:#d06090;--orange:#e08030;
+  --text:#e5e2db;--muted:#6e7590;
+  --border:rgba(201,152,58,0.18);--r:14px;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  min-height:100vh;padding-bottom:72px;
+  background-image:
+    radial-gradient(ellipse at 15% 0%,rgba(53,120,200,0.1) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 95%,rgba(201,152,58,0.07) 0%,transparent 55%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9983a' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* ── HEADER ── */
+.header{
+  background:rgba(10,16,31,0.98);border-bottom:1px solid var(--border);
+  padding:12px 16px 0;position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hdr-title{
+  font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:3px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hdr-sub{font-size:.62rem;color:var(--muted);letter-spacing:1px;margin-top:2px}
+.hdr-right{text-align:right}
+.live-clock{
+  font-family:'Cinzel',serif;font-size:1.2rem;
+  color:var(--gold2);letter-spacing:2px;
+}
+.hdr-dates{font-size:.62rem;color:var(--muted);line-height:1.6;margin-top:1px}
+.hdr-dates .hijri{color:var(--gold);font-family:'Amiri',serif;font-size:.75rem}
+
+/* RAMADAN BAR */
+.ram-bar{
+  display:flex;align-items:center;gap:12px;margin:10px 0 0;
+  padding-bottom:10px;flex-wrap:wrap;
+}
+.ram-badge{
+  font-family:'Amiri',serif;font-size:.9rem;color:var(--gold);
+  background:rgba(201,152,58,0.1);border:1px solid var(--border);
+  border-radius:20px;padding:3px 14px;white-space:nowrap;
+}
+.ram-progress{flex:1;min-width:160px}
+.ram-label{display:flex;justify-content:space-between;font-size:.62rem;color:var(--muted);margin-bottom:4px}
+.ram-track{height:5px;background:rgba(201,152,58,0.1);border-radius:4px;overflow:hidden}
+.ram-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width .5s}
+.stat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.stat-chip{
+  font-size:.62rem;padding:3px 10px;border-radius:12px;
+  border:1px solid var(--border);background:rgba(201,152,58,0.05);
+  color:var(--muted);white-space:nowrap;letter-spacing:.3px;
+}
+.stat-chip.gold{color:var(--gold)}
+.stat-chip.teal{color:var(--teal);border-color:rgba(29,184,164,0.25)}
+.stat-chip.blue{color:var(--blue);border-color:rgba(53,120,200,0.25)}
+.stat-chip.green{color:var(--green);border-color:rgba(56,200,112,0.25)}
+
+/* PRAYER BAR */
+.prayer-bar{
+  display:flex;overflow-x:auto;scrollbar-width:none;
+  border-top:1px solid var(--border);margin:0 -16px;
+}
+.prayer-bar::-webkit-scrollbar{display:none}
+.p-item{
+  flex:1;min-width:65px;text-align:center;padding:7px 4px;
+  border-right:1px solid var(--border);font-size:.62rem;
+  transition:background .2s;
+}
+.p-item:last-child{border-right:none}
+.p-name{color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-size:.58rem}
+.p-time{color:var(--teal);font-family:'Cinzel',serif;font-size:.68rem;margin-top:2px}
+.p-item.current-p{background:rgba(29,184,164,0.07)}
+.p-item.current-p .p-name{color:var(--teal)}
+.p-item.current-p .p-time{color:var(--gold2);text-shadow:0 0 8px var(--gold)}
+
+/* ── DESKTOP TABS ── */
+.desk-nav{
+  display:flex;gap:6px;padding:14px 16px 0;flex-wrap:wrap;position:relative;z-index:1;
+}
+.d-tab{
+  padding:6px 14px;border-radius:20px;cursor:pointer;
+  font-size:.72rem;font-weight:600;letter-spacing:.3px;
+  border:1px solid var(--border);background:rgba(201,152,58,0.04);
+  color:var(--muted);transition:all .2s;white-space:nowrap;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.d-tab:hover{color:var(--text);border-color:var(--gold)}
+.d-tab.active{
+  background:linear-gradient(135deg,rgba(201,152,58,0.2),rgba(240,196,90,0.1));
+  color:var(--gold2);border-color:var(--gold);font-weight:700;
+}
+
+/* ── BOTTOM NAV ── */
+.bot-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(9,16,31,0.98);border-top:1px solid var(--border);
+  display:flex;overflow-x:auto;scrollbar-width:none;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+}
+.bot-nav::-webkit-scrollbar{display:none}
+.bnav{
+  flex:0 0 auto;min-width:58px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;padding:8px 6px;
+  cursor:pointer;border:none;background:none;color:var(--muted);
+  font-size:.55rem;font-weight:600;letter-spacing:.3px;text-transform:uppercase;
+  transition:color .2s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.bnav .bi{font-size:1.1rem;transition:transform .2s}
+.bnav.active{color:var(--gold2)}
+.bnav.active .bi{transform:scale(1.15);filter:drop-shadow(0 0 4px var(--gold))}
+
+/* ── CONTENT ── */
+.content{padding:14px 14px 0;position:relative;z-index:1}
+.sec{display:none;animation:fadeUp .25s ease}
+.sec.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.sec-hdr{
+  font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:2.5px;
+  color:var(--gold);margin-bottom:14px;padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+
+/* ── CARD ── */
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r);margin-bottom:10px;overflow:hidden;
+  transition:border-color .2s;
+}
+.card:hover{border-color:rgba(201,152,58,0.3)}
+.card-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 14px 8px;
+}
+.card-label{
+  font-family:'Cinzel',serif;font-size:.68rem;letter-spacing:1.5px;color:var(--gold);
+}
+
+/* ── BUTTONS ── */
+.btn{
+  padding:6px 14px;border-radius:20px;border:1px solid var(--border);
+  background:rgba(201,152,58,0.08);color:var(--muted);cursor:pointer;
+  font-size:.7rem;font-weight:600;letter-spacing:.3px;
+  transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.btn:hover{color:var(--gold);border-color:var(--gold)}
+.btn.on{color:var(--teal);border-color:var(--teal);background:rgba(29,184,164,0.08)}
+.btn-gold{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#09101f;border-color:transparent;font-weight:700;
+}
+.btn-gold:hover{opacity:.85}
+.del-btn{
+  width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(224,85,85,0.1);color:var(--red);font-size:.75rem;
+  display:none;align-items:center;justify-content:center;transition:all .2s;
+  flex-shrink:0;
+}
+.del-btn:hover{background:rgba(224,85,85,0.25)}
+.edit-mode .del-btn{display:flex}
+
+/* ── PROGRESS ── */
+.prog-row{height:4px;background:rgba(201,152,58,0.08);border-radius:4px;overflow:hidden;margin:4px 0}
+.prog-fill{height:100%;border-radius:4px;transition:width .5s}
+
+/* ── ADD ZONE ── */
+.add-zone{
+  display:none;padding:14px;border-top:1px dashed rgba(201,152,58,0.2);
+  background:rgba(201,152,58,0.02);
+}
+.az-title{font-family:'Cinzel',serif;font-size:.6rem;color:var(--gold);letter-spacing:2px;margin-bottom:10px}
+.az-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.az-in,.az-sel,.az-ta{
+  padding:8px 10px;border-radius:8px;width:100%;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-size:.78rem;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.az-in:focus,.az-sel:focus,.az-ta:focus{outline:none;border-color:var(--gold)}
+.az-sel option{background:var(--bg3);color:var(--text)}
+.az-ta{resize:none;min-height:50px;line-height:1.4}
+.az-submit{
+  width:100%;padding:9px;border-radius:9px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#09101f;font-weight:700;font-size:.78rem;
+  font-family:'Plus Jakarta Sans',sans-serif;transition:opacity .2s;letter-spacing:.5px;
+}
+.az-submit:hover{opacity:.85}
+.edit-mode+.add-zone,.show-add{display:block!important}
+
+/* ── HOME TAB ── */
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.home-kpi{
+  padding:14px;border-radius:var(--r);background:var(--bg2);
+  border:1px solid var(--border);text-align:center;
+}
+.kpi-val{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:700}
+.kpi-lbl{font-size:.62rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.current-block-card{
+  padding:14px;border-radius:var(--r);background:linear-gradient(135deg,rgba(29,184,164,0.08),var(--bg2));
+  border:1px solid rgba(29,184,164,0.25);margin-bottom:10px;
+}
+.cb-label{font-size:.62rem;color:var(--teal);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;font-family:'Cinzel',serif}
+.cb-name{font-size:1rem;font-weight:700}
+.cb-meta{font-size:.72rem;color:var(--muted);margin-top:4px}
+.word-preview{
+  padding:14px;border-radius:var(--r);background:var(--bg2);
+  border:1px solid var(--border);cursor:pointer;
+}
+.wp-label{font-size:.6rem;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;font-family:'Cinzel',serif}
+.wp-word{font-size:1.1rem;font-weight:700;color:var(--gold2)}
+.wp-meaning{font-size:.75rem;color:var(--muted);margin-top:4px;line-height:1.5}
+.next-prayer{
+  padding:12px 14px;border-radius:var(--r);background:var(--bg2);
+  border:1px solid var(--border);display:flex;align-items:center;gap:12px;margin-bottom:10px;
+}
+.np-icon{font-size:1.5rem}
+.np-info{flex:1}
+.np-name{font-weight:700;font-size:.9rem}
+.np-time{font-size:.72rem;color:var(--muted);margin-top:2px}
+.np-countdown{
+  font-family:'Cinzel',serif;font-size:1rem;color:var(--gold);
+}
+
+/* ── SCHEDULE / ROTATION ── */
+.rot-day{padding:12px 14px;border-bottom:1px solid var(--border)}
+.rot-day:last-child{border-bottom:none}
+.rot-day.today-rot{background:rgba(201,152,58,0.04)}
+.rot-hdr{
+  font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);
+  margin-bottom:8px;display:flex;align-items:center;gap:8px;
+}
+.today-badge{
+  font-size:.6rem;background:var(--gold);color:#09101f;
+  padding:2px 8px;border-radius:8px;font-weight:700;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-size:.68rem;padding:3px 10px;border-radius:12px;font-weight:600;border:1px solid}
+.pi{background:rgba(53,120,200,0.1);color:#7ab0f0;border-color:rgba(53,120,200,0.2)}
+.pa{background:rgba(201,152,58,0.1);color:var(--gold);border-color:var(--border)}
+.pg{background:rgba(224,85,85,0.1);color:#f09090;border-color:rgba(224,85,85,0.2)}
+.pd{background:rgba(29,184,164,0.1);color:var(--teal);border-color:rgba(29,184,164,0.2)}
+.pb{background:rgba(122,90,191,0.1);color:#b090e0;border-color:rgba(122,90,191,0.2)}
+.pm{background:rgba(208,96,144,0.1);color:#e090b8;border-color:rgba(208,96,144,0.2)}
+.pr{background:rgba(110,117,144,0.1);color:var(--muted);border-color:rgba(110,117,144,0.15)}
+
+/* DAILY TIME BLOCKS */
+.tblock{
+  display:flex;align-items:center;gap:10px;padding:11px 14px;
+  border-bottom:1px solid rgba(201,152,58,0.06);transition:background .2s;
+}
+.tblock:hover{background:rgba(201,152,58,0.03)}
+.tblock.now{
+  background:linear-gradient(90deg,rgba(29,184,164,0.07),transparent);
+  border-left:3px solid var(--teal);
+}
+.tb-time{font-family:'Cinzel',serif;font-size:.62rem;color:var(--gold);min-width:72px;letter-spacing:.3px}
+.tb-content{flex:1}
+.tb-name{font-size:.85rem;font-weight:600}
+.tb-desc{font-size:.68rem;color:var(--muted);margin-top:2px;line-height:1.4}
+.tb-badge{margin-left:auto;font-size:.6rem;padding:2px 8px;border-radius:8px;white-space:nowrap;border:1px solid;font-weight:700;flex-shrink:0}
+.tag-p{background:rgba(201,152,58,0.1);color:var(--gold);border-color:rgba(201,152,58,0.2)}
+.tag-w{background:rgba(29,184,164,0.1);color:var(--teal);border-color:rgba(29,184,164,0.2)}
+.tag-b{background:rgba(224,85,85,0.1);color:var(--red);border-color:rgba(224,85,85,0.2)}
+.tag-g{background:rgba(56,200,112,0.1);color:var(--green);border-color:rgba(56,200,112,0.2)}
+.tag-s{background:rgba(122,90,191,0.1);color:var(--purple);border-color:rgba(122,90,191,0.2)}
+
+/* ── HABITS ── */
+.habit-item{
+  padding:13px 14px;border-bottom:1px solid rgba(201,152,58,0.06);
+}
+.habit-item:last-child{border-bottom:none}
+.habit-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.habit-name{font-size:.85rem;font-weight:600;flex:1}
+.habit-sub{font-size:.68rem;color:var(--muted);display:block;margin-top:1px}
+.streak-badge{
+  font-size:.68rem;padding:3px 10px;border-radius:12px;
+  background:rgba(201,152,58,0.1);color:var(--gold);border:1px solid var(--border);
+  white-space:nowrap;flex-shrink:0;font-weight:700;
+}
+.day-row{display:flex;gap:6px;flex-wrap:wrap}
+.day-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.day-lbl{font-size:.58rem;color:var(--muted)}
+.day-lbl.tday{color:var(--gold2);font-weight:700}
+.dcb{display:none}
+.dbox{
+  width:32px;height:32px;border-radius:7px;border:2px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:13px;background:var(--bg3);transition:all .2s;color:transparent;
+}
+.dcb:checked+.dbox{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border-color:var(--gold);color:#09101f;
+}
+
+/* ── GOALS ── */
+.goal-card{padding:16px}
+.goal-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.goal-icon{
+  font-size:1.4rem;width:38px;height:38px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(201,152,58,0.08);border:1px solid var(--border);flex-shrink:0;
+}
+.goal-title{font-family:'Cinzel',serif;font-size:.72rem;color:var(--gold);letter-spacing:1px;margin-bottom:3px}
+.goal-desc{font-size:.72rem;color:var(--muted);line-height:1.5}
+.prog-labels{display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted);margin-bottom:5px}
+.task-list{display:flex;flex-direction:column;gap:4px}
+.task-row{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:.78rem;padding:2px 0}
+.task-row input{display:none}
+.task-dot{width:15px;height:15px;border-radius:4px;border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:8px;transition:all .18s}
+.task-row input:checked+.task-dot{background:var(--gold);border-color:var(--gold);color:#09101f}
+.task-row input:checked~.task-lbl{text-decoration:line-through;color:var(--muted)}
+
+/* ── BOOKS ── */
+.book-item{padding:14px}
+.bk-top{display:flex;gap:12px;margin-bottom:10px}
+.bk-cover{
+  width:44px;height:58px;border-radius:6px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+  background:rgba(201,152,58,0.07);border:1px solid var(--border);
+}
+.bk-title{font-weight:700;font-size:.88rem}
+.bk-author{font-size:.7rem;color:var(--muted);margin:2px 0 5px}
+.bk-status{font-size:.62rem;padding:2px 8px;border-radius:8px;font-weight:700;display:inline-block}
+.bs-r{background:rgba(29,184,164,0.1);color:var(--teal);border:1px solid rgba(29,184,164,0.2)}
+.bs-d{background:rgba(56,200,112,0.1);color:var(--green);border:1px solid rgba(56,200,112,0.2)}
+.bs-q{background:rgba(110,117,144,0.1);color:var(--muted);border:1px solid var(--border)}
+.page-row{display:flex;align-items:center;gap:8px;margin:8px 0;flex-wrap:wrap}
+.pg-in{
+  width:68px;padding:5px 8px;border-radius:7px;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-size:.75rem;text-align:center;font-family:'Cinzel',serif;
+}
+.pg-in:focus{outline:none;border-color:var(--gold)}
+.pg-lbl{font-size:.7rem;color:var(--muted)}
+.bk-notes{
+  width:100%;padding:8px 10px;border-radius:8px;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-size:.76rem;font-family:'Plus Jakarta Sans',sans-serif;
+  resize:none;min-height:55px;line-height:1.5;
+}
+.bk-notes:focus{outline:none;border-color:var(--gold)}
+.bk-notes::placeholder{color:var(--muted)}
+
+/* ── CALENDAR ── */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
+.cal-month{font-family:'Cinzel',serif;font-size:.9rem;color:var(--gold2);letter-spacing:2px}
+.cal-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.cal-btn:hover{border-color:var(--gold);color:var(--gold)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0;padding:8px}
+.cal-dow{text-align:center;font-size:.6rem;color:var(--muted);padding:4px 0;font-weight:700;letter-spacing:.5px}
+.cal-day{
+  text-align:center;padding:8px 0;font-size:.8rem;cursor:pointer;
+  border-radius:8px;margin:2px;transition:all .2s;position:relative;
+}
+.cal-day:hover{background:rgba(201,152,58,0.1)}
+.cal-day.today{background:rgba(201,152,58,0.15);color:var(--gold);font-weight:700;border:1px solid var(--border)}
+.cal-day.has-event::after{
+  content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);
+  width:5px;height:5px;border-radius:50%;background:var(--gold);
+}
+.cal-day.other-month{color:var(--muted);opacity:.4}
+.events-section{padding:14px;border-top:1px solid var(--border)}
+.events-title{font-family:'Cinzel',serif;font-size:.65rem;color:var(--gold);letter-spacing:2px;margin-bottom:10px}
+.event-item{
+  display:flex;align-items:flex-start;gap:10px;padding:8px 10px;
+  border-radius:9px;background:var(--bg3);border:1px solid var(--border);
+  margin-bottom:6px;
+}
+.event-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.event-title{font-size:.8rem;font-weight:600}
+.event-date{font-size:.68rem;color:var(--muted);margin-top:2px}
+.cat-imm{background:var(--blue)}
+.cat-iel{background:var(--teal)}
+.cat-isl{background:var(--gold)}
+.cat-hlt{background:var(--green)}
+.cat-biz{background:var(--red)}
+.cat-per{background:var(--purple)}
+/* ADD EVENT MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:20px;width:100%;max-width:360px;max-height:80vh;overflow-y:auto;
+}
+.modal-title{font-family:'Cinzel',serif;font-size:.8rem;color:var(--gold);letter-spacing:2px;margin-bottom:14px}
+.modal .az-in,.modal .az-sel,.modal .az-ta{margin-bottom:10px;display:block}
+.modal-close{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem}
+
+/* ── DICTIONARY ── */
+.word-card{padding:18px}
+.wc-label{font-size:.6rem;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-family:'Cinzel',serif;margin-bottom:10px}
+.wc-word{font-size:1.6rem;font-weight:700;color:var(--gold2);margin-bottom:4px}
+.wc-type{font-size:.72rem;color:var(--teal);font-style:italic;margin-bottom:10px}
+.wc-meaning{font-size:.85rem;line-height:1.6;margin-bottom:10px}
+.wc-example{
+  font-style:italic;font-size:.8rem;color:var(--muted);
+  border-left:3px solid var(--border);padding-left:10px;line-height:1.6;margin-bottom:10px;
+}
+.wc-section{margin-bottom:8px}
+.wc-section-label{font-size:.62rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.tag-list{display:flex;flex-wrap:wrap;gap:6px}
+.tag-pill{font-size:.72rem;padding:2px 10px;border-radius:10px;background:rgba(201,152,58,0.1);color:var(--gold);border:1px solid var(--border)}
+.arabic-word{font-family:'Amiri',serif;font-size:1.2rem;color:var(--gold2);direction:rtl;text-align:right}
+.arabic-meaning{font-size:.75rem;color:var(--muted);margin-top:4px}
+
+/* 99 NAMES */
+.names-search{
+  display:flex;gap:8px;padding:12px 14px;border-bottom:1px solid var(--border);
+}
+.names-search input{flex:1;padding:8px 12px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-size:.8rem;font-family:inherit}
+.names-search input:focus{outline:none;border-color:var(--gold)}
+.names-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:8px;padding:12px;
+}
+.name-card{
+  padding:12px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);
+  text-align:center;cursor:pointer;transition:all .2s;
+}
+.name-card:hover{border-color:var(--gold);background:rgba(201,152,58,0.05)}
+.name-num{font-size:.6rem;color:var(--muted);margin-bottom:4px}
+.name-arabic{font-family:'Amiri',serif;font-size:1.3rem;color:var(--gold2);direction:rtl;margin-bottom:4px}
+.name-translit{font-size:.7rem;color:var(--teal);font-style:italic;margin-bottom:3px}
+.name-meaning{font-size:.68rem;color:var(--muted);line-height:1.4}
+.name-modal{padding:20px}
+.nm-arabic{font-family:'Amiri',serif;font-size:2.5rem;color:var(--gold2);direction:rtl;text-align:center;margin-bottom:8px}
+.nm-translit{text-align:center;font-size:1rem;color:var(--teal);font-style:italic;margin-bottom:6px}
+.nm-meaning{text-align:center;font-size:1rem;font-weight:700;margin-bottom:14px}
+.nm-desc{font-size:.82rem;color:var(--muted);line-height:1.7;text-align:center}
+
+/* ── JOBS ── */
+.job-item{
+  padding:13px 14px;border-bottom:1px solid rgba(201,152,58,0.06);
+  display:flex;align-items:center;gap:12px;
+}
+.job-item:last-child{border-bottom:none}
+.job-icon{font-size:1.2rem;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--bg3);border:1px solid var(--border);flex-shrink:0}
+.job-info{flex:1}
+.job-title{font-size:.85rem;font-weight:600}
+.job-meta{font-size:.68rem;color:var(--muted);margin-top:2px}
+.job-status{
+  font-size:.62rem;padding:3px 9px;border-radius:8px;font-weight:700;
+  white-space:nowrap;border:1px solid;
+}
+.js-a{background:rgba(56,200,112,0.1);color:var(--green);border-color:rgba(56,200,112,0.2)}
+.js-p{background:rgba(201,152,58,0.1);color:var(--gold);border-color:var(--border)}
+.js-n{background:rgba(110,117,144,0.1);color:var(--muted);border-color:rgba(110,117,144,0.2)}
+.js-r{background:rgba(224,85,85,0.1);color:var(--red);border-color:rgba(224,85,85,0.2)}
+.job-link-item{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  border-bottom:1px solid rgba(201,152,58,0.05);text-decoration:none;color:var(--text);
+  transition:background .2s;
+}
+.job-link-item:hover{background:rgba(201,152,58,0.04)}
+.jl-info{flex:1}
+.jl-name{font-size:.82rem;font-weight:600}
+.jl-desc{font-size:.68rem;color:var(--muted);margin-top:1px}
+.jl-badge{font-size:.6rem;padding:2px 8px;border-radius:8px;font-weight:700;white-space:nowrap}
+
+/* ── SEARCH ── */
+.search-area{padding:14px}
+.search-box-wrap{display:flex;gap:8px;margin-bottom:12px}
+.search-box{
+  flex:1;padding:10px 16px;border-radius:24px;background:var(--bg3);
+  border:1px solid var(--border);color:var(--text);font-size:.85rem;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.search-box:focus{outline:none;border-color:var(--gold)}
+.search-btn{
+  padding:10px 18px;border-radius:24px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#09101f;font-weight:700;font-size:.8rem;
+  font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;
+}
+.search-presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.preset-chip{
+  padding:5px 12px;border-radius:14px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--muted);cursor:pointer;font-size:.72rem;
+  font-weight:600;transition:all .2s;
+}
+.preset-chip:hover{color:var(--gold);border-color:var(--gold)}
+.preset-chip.active-p{color:var(--gold);border-color:var(--gold);background:rgba(201,152,58,0.08)}
+.g-workspace{padding:14px;border-radius:var(--r);background:var(--bg2);border:1px solid var(--border);margin-top:10px}
+.gw-title{font-family:'Cinzel',serif;font-size:.65rem;color:var(--gold);letter-spacing:2px;margin-bottom:10px}
+.gw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.gw-item{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  text-decoration:none;padding:10px 6px;border-radius:10px;
+  background:var(--bg3);border:1px solid var(--border);transition:all .2s;color:var(--text);
+}
+.gw-item:hover{border-color:var(--gold);background:rgba(201,152,58,0.06)}
+.gw-icon{font-size:1.4rem}
+.gw-lbl{font-size:.6rem;color:var(--muted);text-align:center}
+
+/* ── AI CHAT ── */
+.chat-messages{
+  height:350px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;
+}
+.msg{max-width:85%;animation:fadeUp .2s ease}
+.msg-user{align-self:flex-end}
+.msg-ai{align-self:flex-start}
+.msg-bubble{
+  padding:10px 14px;border-radius:12px;font-size:.82rem;line-height:1.6;
+}
+.msg-user .msg-bubble{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#09101f;border-radius:12px 12px 2px 12px;
+}
+.msg-ai .msg-bubble{
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);border-radius:12px 12px 12px 2px;
+}
+.msg-ai .msg-bubble.loading{
+  display:flex;gap:5px;align-items:center;padding:14px;
+}
+.dot-anim{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:dotPulse 1.4s infinite}
+.dot-anim:nth-child(2){animation-delay:.2s}
+.dot-anim:nth-child(3){animation-delay:.4s}
+@keyframes dotPulse{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+.chat-input-row{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border)}
+.chat-input{
+  flex:1;padding:9px 14px;border-radius:20px;background:var(--bg3);
+  border:1px solid var(--border);color:var(--text);font-size:.82rem;
+  font-family:'Plus Jakarta Sans',sans-serif;resize:none;
+  max-height:100px;overflow-y:auto;
+}
+.chat-input:focus{outline:none;border-color:var(--gold)}
+.chat-send{
+  width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#09101f;font-size:1rem;flex-shrink:0;align-self:flex-end;
+  transition:all .2s;
+}
+.chat-send:hover{transform:scale(1.05)}
+.chat-quick{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px}
+.cq-btn{
+  padding:4px 12px;border-radius:12px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--muted);cursor:pointer;font-size:.68rem;
+  transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.cq-btn:hover{color:var(--gold);border-color:var(--gold)}
+
+/* ── RESOURCES ── */
+.res-group-hdr{
+  font-family:'Cinzel',serif;font-size:.65rem;color:var(--gold);letter-spacing:2px;
+  padding:10px 14px 8px;border-bottom:1px solid var(--border);
+}
+.res-link{
+  display:flex;align-items:center;gap:10px;padding:10px 14px;
+  border-bottom:1px solid rgba(201,152,58,0.05);text-decoration:none;color:var(--text);transition:all .2s;
+}
+.res-link:hover{background:rgba(201,152,58,0.04);padding-left:18px}
+.res-link:last-child{border-bottom:none}
+.rl-icon{font-size:1rem;width:22px;text-align:center;flex-shrink:0}
+.rl-name{font-size:.8rem;font-weight:600}
+.rl-desc{font-size:.65rem;color:var(--muted)}
+.rl-badge{
+  margin-left:auto;font-size:.58rem;padding:2px 7px;border-radius:7px;
+  background:rgba(56,200,112,0.08);color:var(--green);border:1px solid rgba(56,200,112,0.2);
+  font-weight:700;white-space:nowrap;
+}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(10px);
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--text);font-size:.75rem;padding:8px 18px;border-radius:20px;
+  opacity:0;transition:all .3s;pointer-events:none;z-index:999;
+  white-space:nowrap;box-shadow:0 0 20px rgba(201,152,58,0.15);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* DESKTOP */
+@media(min-width:640px){
+  body{padding-bottom:16px}
+  .bot-nav{display:none}
+  .desk-nav{display:flex}
+  .content{padding:14px 16px 16px}
+  .goals-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .goals-2col .card{margin-bottom:0}
+  .res-2col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .res-2col .card{margin-bottom:0}
+}
+@media(max-width:639px){.desk-nav{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<div class="header">
+  <div class="hdr-top">
+    <div>
+      <div class="hdr-title">⟡ LIFE OS</div>
+      <div class="hdr-sub" id="greg-full">Loading...</div>
+    </div>
+    <div class="hdr-right">
+      <div class="live-clock" id="live-clock">--:--:--</div>
+      <div class="hdr-dates">
+        <span id="greg-short"></span><br/>
+        <span class="hijri" id="hijri-date">Loading Hijri...</span>
+      </div>
+    </div>
+  </div>
+  <div class="ram-bar">
+    <div class="ram-badge">🌙 Ramadan Day <span id="ram-day">—</span></div>
+    <div class="ram-progress">
+      <div class="ram-label"><span>1 Ramadan</span><span id="ram-pct-lbl">0%</span><span>30 Ramadan</span></div>
+      <div class="ram-track"><div class="ram-fill" id="ram-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="stat-row">
+    <span class="stat-chip gold">🔥 Streak: <span id="streak-val">0</span>d</span>
+    <span class="stat-chip teal">✅ <span id="q-done">0</span>/<span id="q-total">0</span> quests</span>
+    <span class="stat-chip blue">📅 Day <span id="day-count">1</span> of transformation</span>
+    <span class="stat-chip green">💰 Saving for flight</span>
+  </div>
+  <div class="prayer-bar" id="prayer-bar">
+    <div class="p-item"><div class="p-name">Loading...</div></div>
+  </div>
+</div>
+
+<!-- Desktop tabs -->
+<div class="desk-nav">
+  <div class="d-tab active" onclick="go('home',this)">🏠 Home</div>
+  <div class="d-tab" onclick="go('schedule',this)">📅 Schedule</div>
+  <div class="d-tab" onclick="go('habits',this)">✅ Habits</div>
+  <div class="d-tab" onclick="go('goals',this)">🎯 Goals</div>
+  <div class="d-tab" onclick="go('calendar',this)">🗓️ Calendar</div>
+  <div class="d-tab" onclick="go('books',this)">📚 Books</div>
+  <div class="d-tab" onclick="go('dictionary',this)">📖 Dictionary</div>
+  <div class="d-tab" onclick="go('jobs',this)">💼 Jobs</div>
+  <div class="d-tab" onclick="go('search',this)">🔍 Search</div>
+  <div class="d-tab" onclick="go('ai',this)">🤖 AI Coach</div>
+  <div class="d-tab" onclick="go('resources',this)">🔗 Resources</div>
+</div>
+
+<div class="content">
+
+<!-- ═══ HOME ═══ -->
+<div class="sec active" id="sec-home">
+  <div class="sec-hdr">COMMAND CENTRE</div>
+  <div class="current-block-card" id="current-block-card">
+    <div class="cb-label">▶ Now</div>
+    <div class="cb-name" id="cb-name">Loading...</div>
+    <div class="cb-meta" id="cb-meta"></div>
+  </div>
+  <div class="next-prayer" id="next-prayer-card">
+    <div class="np-icon">🕌</div>
+    <div class="np-info"><div class="np-name" id="np-name">Next Prayer</div><div class="np-time" id="np-time">—</div></div>
+    <div class="np-countdown" id="np-countdown">--:--</div>
+  </div>
+  <div class="home-grid">
+    <div class="home-kpi"><div class="kpi-val" id="hk-day" style="color:var(--gold)">1</div><div class="kpi-lbl">Day of Ramadan</div></div>
+    <div class="home-kpi"><div class="kpi-val" id="hk-streak" style="color:var(--teal)">0</div><div class="kpi-lbl">Day Streak</div></div>
+    <div class="home-kpi"><div class="kpi-val" id="hk-days-since" style="color:var(--blue)">1</div><div class="kpi-lbl">Days Since Day 1</div></div>
+    <div class="home-kpi"><div class="kpi-val" id="hk-quests" style="color:var(--green)">0%</div><div class="kpi-lbl">Today Quests</div></div>
+  </div>
+  <div class="word-preview card" onclick="go('dictionary',document.querySelector('[onclick*=dictionary]'))">
+    <div class="wp-label">📖 Word of the Day — Tap to explore</div>
+    <div class="wp-word" id="wotd-preview">Loading...</div>
+    <div class="wp-meaning" id="wotd-meaning-preview"></div>
+  </div>
+  <div class="card">
+    <div class="card-top"><div class="card-label">TRANSFORMATION LOG</div></div>
+    <div style="padding:0 14px 14px;font-size:.8rem;color:var(--muted);line-height:1.8">
+      <div style="color:var(--text);font-weight:600;margin-bottom:6px">📌 Day 1 — 03 March 2026 (Ramadan 1)</div>
+      Stayed up, read Master Your Emotions Ch.1–2 (20 pages), wrote in notebook for first time, put phone away, woke for Fajr, prayed Dhuhr. <em style="color:var(--gold)">"I feel better."</em>
+      <div id="extra-milestones"></div>
+    </div>
+    <div style="padding:0 14px 14px">
+      <textarea class="az-ta" id="new-milestone" placeholder="Add today's milestone..." style="margin-bottom:8px"></textarea>
+      <button class="az-submit" onclick="addMilestone()">LOG MILESTONE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCHEDULE ═══ -->
+<div class="sec" id="sec-schedule">
+  <div class="sec-hdr">
+    DAILY SCHEDULE
+    <button class="btn" id="sched-edit-btn" onclick="eMode('sched')">✏️ Edit</button>
+  </div>
+  <!-- TABS: Today / Rotation -->
+  <div style="display:flex;gap:6px;margin-bottom:12px">
+    <button class="btn on" id="sched-today-tab" onclick="schedTab('today')">Today</button>
+    <button class="btn" id="sched-rot-tab" onclick="schedTab('rotation')">7-Day Rotation</button>
+  </div>
+  <div id="sched-today-view">
+    <div class="card" id="tblock-list"></div>
+    <div class="add-zone" id="sched-add">
+      <div class="az-title">+ ADD TIME BLOCK</div>
+      <div class="az-row">
+        <input class="az-in" id="ns-time" placeholder="Time (e.g. 5:00 AM)"/>
+        <select class="az-sel" id="ns-tag">
+          <option value="p">🕌 Prayer</option>
+          <option value="w">💻 Work/Study</option>
+          <option value="g">🏋️ Physical</option>
+          <option value="s">💤 Sleep</option>
+          <option value="b">🏪 Business</option>
+        </select>
+      </div>
+      <input class="az-in" id="ns-name" placeholder="Block title" style="width:100%;margin-bottom:8px"/>
+      <textarea class="az-ta" id="ns-desc" placeholder="Description..." style="width:100%;margin-bottom:8px"></textarea>
+      <button class="az-submit" onclick="addSchedBlock()">ADD BLOCK</button>
+    </div>
+  </div>
+  <div id="sched-rot-view" style="display:none">
+    <div class="card" id="rotation-list"></div>
+  </div>
+</div>
+
+<!-- ═══ HABITS ═══ -->
+<div class="sec" id="sec-habits">
+  <div class="sec-hdr">
+    DAILY QUESTS
+    <button class="btn" id="habits-edit-btn" onclick="eMode('habits')">✏️ Edit</button>
+  </div>
+  <div class="card" id="habits-list"></div>
+  <div class="add-zone" id="habits-add">
+    <div class="az-title">+ NEW QUEST</div>
+    <input class="az-in" id="nh-name" placeholder="Quest name" style="width:100%;margin-bottom:8px"/>
+    <div class="az-row">
+      <input class="az-in" id="nh-desc" placeholder="Note (optional)"/>
+      <select class="az-sel" id="nh-color">
+        <option value="var(--gold)">Gold</option>
+        <option value="var(--teal)">Teal</option>
+        <option value="var(--blue)">Blue</option>
+        <option value="var(--red)">Red</option>
+        <option value="var(--green)">Green</option>
+        <option value="var(--purple)">Purple</option>
+      </select>
+    </div>
+    <button class="az-submit" onclick="addHabit()">ADD QUEST</button>
+  </div>
+</div>
+
+<!-- ═══ GOALS ═══ -->
+<div class="sec" id="sec-goals">
+  <div class="sec-hdr">
+    MISSION OBJECTIVES
+    <button class="btn" id="goals-edit-btn" onclick="eMode('goals')">✏️ Edit</button>
+  </div>
+  <div class="goals-2col" id="goals-list"></div>
+  <div class="add-zone" id="goals-add">
+    <div class="az-title">+ UNLOCK OBJECTIVE</div>
+    <div class="az-row">
+      <input class="az-in" id="ng-emoji" placeholder="Icon (emoji)"/>
+      <input class="az-in" id="ng-title" placeholder="Objective title"/>
+    </div>
+    <textarea class="az-ta" id="ng-desc" placeholder="Description / target..." style="width:100%;margin-bottom:8px"></textarea>
+    <input class="az-in" id="ng-tasks" placeholder="Tasks, comma separated" style="width:100%;margin-bottom:8px"/>
+    <button class="az-submit" onclick="addGoal()">ADD OBJECTIVE</button>
+  </div>
+</div>
+
+<!-- ═══ CALENDAR ═══ -->
+<div class="sec" id="sec-calendar">
+  <div class="sec-hdr">CALENDAR & REMINDERS</div>
+  <div class="card">
+    <div class="cal-nav">
+      <button class="cal-btn" onclick="calNav(-1)">‹</button>
+      <div class="cal-month" id="cal-month-label">—</div>
+      <button class="cal-btn" onclick="calNav(1)">›</button>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-dow">SUN</div><div class="cal-dow">MON</div><div class="cal-dow">TUE</div>
+      <div class="cal-dow">WED</div><div class="cal-dow">THU</div><div class="cal-dow">FRI</div><div class="cal-dow">SAT</div>
+    </div>
+    <div class="cal-grid" id="cal-days"></div>
+    <div class="events-section">
+      <div class="events-title">UPCOMING EVENTS</div>
+      <div id="events-list">
+        <div style="font-size:.78rem;color:var(--muted)">No upcoming events. Click a date to add one.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BOOKS ═══ -->
+<div class="sec" id="sec-books">
+  <div class="sec-hdr">
+    READING CODEX
+    <button class="btn" id="books-edit-btn" onclick="eMode('books')">✏️ Edit</button>
+  </div>
+  <div id="books-list"></div>
+  <div class="add-zone" id="books-add">
+    <div class="az-title">+ LOG NEW BOOK</div>
+    <div class="az-row">
+      <input class="az-in" id="nb-emoji" placeholder="Emoji"/>
+      <input class="az-in" id="nb-title" placeholder="Book title"/>
+    </div>
+    <div class="az-row">
+      <input class="az-in" id="nb-author" placeholder="Author"/>
+      <input class="az-in" id="nb-total" placeholder="Total pages" type="number"/>
+    </div>
+    <select class="az-sel" id="nb-status" style="width:100%;margin-bottom:8px">
+      <option value="r">Currently Reading</option>
+      <option value="q">Up Next</option>
+      <option value="d">Finished</option>
+    </select>
+    <button class="az-submit" onclick="addBook()">LOG BOOK</button>
+  </div>
+</div>
+
+<!-- ═══ DICTIONARY ═══ -->
+<div class="sec" id="sec-dictionary">
+  <div class="sec-hdr">DICTIONARY & ARABIC</div>
+  <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+    <button class="btn on" id="dict-wotd-tab" onclick="dictTab('wotd')">Word of the Day</button>
+    <button class="btn" id="dict-99-tab" onclick="dictTab('99names')">99 Names of Allah</button>
+    <button class="btn" id="dict-arabic-tab" onclick="dictTab('arabic')">Arabic Words</button>
+  </div>
+  <!-- Word of the Day -->
+  <div id="dict-wotd-view">
+    <div class="card word-card" id="wotd-card"></div>
+    <div class="card" style="padding:14px;margin-top:10px">
+      <div style="font-family:'Cinzel',serif;font-size:.65rem;color:var(--gold);letter-spacing:2px;margin-bottom:10px">SEARCH WORD</div>
+      <div style="display:flex;gap:8px">
+        <input class="az-in" id="word-search-in" placeholder="Type any word..." style="flex:1"/>
+        <button class="search-btn" onclick="lookupWord()">Lookup</button>
+      </div>
+      <div id="word-lookup-result" style="margin-top:10px"></div>
+    </div>
+  </div>
+  <!-- 99 Names -->
+  <div id="dict-99-view" style="display:none">
+    <div class="card">
+      <div class="names-search">
+        <input placeholder="Search by name or meaning..." id="names-search-in" oninput="filterNames(this.value)"/>
+      </div>
+      <div class="names-grid" id="names-grid"></div>
+    </div>
+  </div>
+  <!-- Arabic Words -->
+  <div id="dict-arabic-view" style="display:none">
+    <div class="card" id="arabic-words-list"></div>
+  </div>
+</div>
+
+<!-- ═══ JOBS ═══ -->
+<div class="sec" id="sec-jobs">
+  <div class="sec-hdr">
+    JOBS & APPLICATIONS
+    <button class="btn" id="jobs-edit-btn" onclick="eMode('jobs')">✏️ Edit</button>
+  </div>
+  <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+    <button class="btn on" id="jobs-tracker-tab" onclick="jobsTab('tracker')">My Applications</button>
+    <button class="btn" id="jobs-remote-tab" onclick="jobsTab('remote')">Remote Jobs</button>
+    <button class="btn" id="jobs-imm-tab" onclick="jobsTab('immigration')">Immigration</button>
+  </div>
+  <div id="jobs-tracker-view">
+    <div class="card" id="apps-list"></div>
+    <div class="add-zone" id="jobs-add">
+      <div class="az-title">+ LOG APPLICATION</div>
+      <div class="az-row">
+        <input class="az-in" id="na-emoji" placeholder="🇦🇺"/>
+        <input class="az-in" id="na-company" placeholder="Company / Portal"/>
+      </div>
+      <div class="az-row">
+        <input class="az-in" id="na-role" placeholder="Role (e.g. Truck Driver)"/>
+        <select class="az-sel" id="na-status">
+          <option value="n">Not Applied</option>
+          <option value="a">Applied</option>
+          <option value="p">In Progress</option>
+          <option value="r">Rejected</option>
+          <option value="s">Success!</option>
+        </select>
+      </div>
+      <button class="az-submit" onclick="addApplication()">LOG APPLICATION</button>
+    </div>
+  </div>
+  <div id="jobs-remote-view" style="display:none">
+    <div class="card" id="remote-jobs-list"></div>
+  </div>
+  <div id="jobs-imm-view" style="display:none">
+    <div class="card" id="imm-jobs-list"></div>
+  </div>
+</div>
+
+<!-- ═══ SEARCH + WORKSPACE ═══ -->
+<div class="sec" id="sec-search">
+  <div class="sec-hdr">GOAL-AWARE SEARCH</div>
+  <div class="search-area">
+    <div class="search-box-wrap">
+      <input class="search-box" id="main-search" placeholder="Search anything..." onkeydown="if(event.key==='Enter')doSearch()"/>
+      <button class="search-btn" onclick="doSearch()">Search ↗</button>
+    </div>
+    <div class="search-presets" id="search-presets"></div>
+    <div class="card">
+      <div class="card-top"><div class="card-label">QUICK SEARCH PRESETS</div></div>
+      <div style="padding:0 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px" id="preset-grid"></div>
+    </div>
+    <div class="g-workspace">
+      <div class="gw-title">GOOGLE WORKSPACE</div>
+      <div class="gw-grid">
+        <a href="https://gmail.com" target="_blank" class="gw-item"><span class="gw-icon">📧</span><span class="gw-lbl">Gmail</span></a>
+        <a href="https://calendar.google.com" target="_blank" class="gw-item"><span class="gw-icon">📅</span><span class="gw-lbl">Calendar</span></a>
+        <a href="https://drive.google.com" target="_blank" class="gw-item"><span class="gw-icon">📁</span><span class="gw-lbl">Drive</span></a>
+        <a href="https://docs.google.com" target="_blank" class="gw-item"><span class="gw-icon">📄</span><span class="gw-lbl">Docs</span></a>
+        <a href="https://sheets.google.com" target="_blank" class="gw-item"><span class="gw-icon">📊</span><span class="gw-lbl">Sheets</span></a>
+        <a href="https://meet.google.com" target="_blank" class="gw-item"><span class="gw-icon">🎥</span><span class="gw-lbl">Meet</span></a>
+        <a href="https://linkedin.com" target="_blank" class="gw-item"><span class="gw-icon">💼</span><span class="gw-lbl">LinkedIn</span></a>
+        <a href="https://translate.google.com" target="_blank" class="gw-item"><span class="gw-icon">🌐</span><span class="gw-lbl">Translate</span></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AI COACH ═══ -->
+<div class="sec" id="sec-ai">
+  <div class="sec-hdr">AI STRATEGIC ADVISOR</div>
+  <div class="card">
+    <div style="padding:10px 14px 0;font-size:.72rem;color:var(--muted);border-bottom:1px solid var(--border);padding-bottom:10px">
+      Your personal AI with full context — immigration strategy, life coaching, IELTS, career, Arabic, Ramadan accountability.
+    </div>
+    <div class="chat-quick" style="padding-top:10px">
+      <button class="cq-btn" onclick="quickChat('What should I focus on today given my goals?')">Today's focus</button>
+      <button class="cq-btn" onclick="quickChat('Give me my AU 482 visa action plan for this week')">AU 482 plan</button>
+      <button class="cq-btn" onclick="quickChat('What remote marketing jobs should I apply for?')">Remote jobs</button>
+      <button class="cq-btn" onclick="quickChat('Give me an IELTS Writing Task 2 practice prompt')">IELTS practice</button>
+      <button class="cq-btn" onclick="quickChat('Motivate me — I am losing focus during Ramadan')">Motivation</button>
+      <button class="cq-btn" onclick="quickChat('What Arabic words should I learn this week?')">Arabic words</button>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg msg-ai">
+        <div class="msg-bubble">
+          Assalamu Alaikum. I'm your personal AI advisor with your full profile loaded — immigration strategy, life coaching, Ramadan goals, IELTS, everything. Ask me anything. No generic advice here.
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <textarea class="chat-input" id="chat-input" placeholder="Ask your advisor..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+      <button class="chat-send" onclick="sendMsg()">↑</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RESOURCES ═══ -->
+<div class="sec" id="sec-resources">
+  <div class="sec-hdr">INTEL DATABASE</div>
+  <div class="res-2col" id="resources-list"></div>
+</div>
+
+</div><!-- /content -->
+
+<!-- Mobile Bottom Nav -->
+<nav class="bot-nav">
+  <button class="bnav active" onclick="go('home',this)" data-t="home"><span class="bi">🏠</span>Home</button>
+  <button class="bnav" onclick="go('schedule',this)" data-t="schedule"><span class="bi">📅</span>Schedule</button>
+  <button class="bnav" onclick="go('habits',this)" data-t="habits"><span class="bi">✅</span>Habits</button>
+  <button class="bnav" onclick="go('goals',this)" data-t="goals"><span class="bi">🎯</span>Goals</button>
+  <button class="bnav" onclick="go('calendar',this)" data-t="calendar"><span class="bi">🗓️</span>Calendar</button>
+  <button class="bnav" onclick="go('books',this)" data-t="books"><span class="bi">📚</span>Books</button>
+  <button class="bnav" onclick="go('dictionary',this)" data-t="dictionary"><span class="bi">📖</span>Dict</button>
+  <button class="bnav" onclick="go('jobs',this)" data-t="jobs"><span class="bi">💼</span>Jobs</button>
+  <button class="bnav" onclick="go('search',this)" data-t="search"><span class="bi">🔍</span>Search</button>
+  <button class="bnav" onclick="go('ai',this)" data-t="ai"><span class="bi">🤖</span>AI</button>
+  <button class="bnav" onclick="go('resources',this)" data-t="resources"><span class="bi">🔗</span>Links</button>
+</nav>
+
+<!-- Event Modal -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title">ADD EVENT — <span id="modal-date-label">—</span></div>
+    <input class="az-in" id="ev-title" placeholder="Event title" style="width:100%;display:block;margin-bottom:8px"/>
+    <select class="az-sel" id="ev-cat" style="width:100%;display:block;margin-bottom:8px">
+      <option value="imm">✈️ Immigration</option>
+      <option value="iel">📝 IELTS</option>
+      <option value="isl">🕌 Islamic</option>
+      <option value="hlt">💪 Health</option>
+      <option value="biz">🏪 Business</option>
+      <option value="per">📌 Personal</option>
+    </select>
+    <textarea class="az-ta" id="ev-notes" placeholder="Notes..." style="width:100%;display:block;margin-bottom:8px"></textarea>
+    <button class="az-submit" onclick="saveEvent()">SAVE EVENT</button>
+  </div>
+</div>
+
+<!-- Name Detail Modal -->
+<div class="modal-overlay" id="name-modal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeNameModal()">✕</button>
+    <div class="name-modal" id="name-modal-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+//  DATA — DEFAULTS
+// ══════════════════════════════════════
+
+const DEF_SCHEDULE = [
+  {id:'s1',time:'4:15 AM',name:'🌙 Suhoor + Fajr',desc:'Eat well, hydrate, pray Fajr. Stay awake — golden hours.',tag:'p',start:'04:15',end:'04:45'},
+  {id:'s2',time:'4:45 AM',name:'📖 IELTS Deep Work',desc:'Reading + Listening. Brain sharpest. Band 9 target.',tag:'w',start:'04:45',end:'06:30'},
+  {id:'s3',time:'6:30 AM',name:'💤 Recovery Nap',desc:'Hard alarm 8:00 AM. 90 min recovery only.',tag:'s',start:'06:30',end:'08:00'},
+  {id:'s4',time:'8:00 AM',name:'🏋️ Gym / Workout',desc:'Push/Pull/Legs rotation. Fasting-friendly.',tag:'g',start:'08:00',end:'09:00'},
+  {id:'s5',time:'9:00 AM',name:'💻 Skills Block',desc:'Data Analytics cert OR Arabic (30 min Arabic minimum).',tag:'w',start:'09:00',end:'12:00'},
+  {id:'s6',time:'12:00 PM',name:'🕌 Dhuhr + Break',desc:'Pray. No screens for 20 min.',tag:'p',start:'12:00',end:'12:30'},
+  {id:'s7',time:'12:30 PM',name:'✈️ Immigration Work',desc:'SEEK/Job Bank apps, BRTA upgrade, docs, visa research.',tag:'w',start:'12:30',end:'14:00'},
+  {id:'s8',time:'2:00 PM',name:'🏪 Nayabazar Business',desc:'Family bond paper business — ops, accounts, strategy.',tag:'b',start:'14:00',end:'15:00'},
+  {id:'s9',time:'3:00 PM',name:'💼 Remote Jobs / Portfolio',desc:'Apply for remote marketing roles. Build portfolio PDF.',tag:'w',start:'15:00',end:'15:30'},
+  {id:'s10',time:'3:30 PM',name:'🕌 Asr + Reading',desc:'Pray Asr. Read 20 pages — Master Your Emotions.',tag:'p',start:'15:30',end:'16:30'},
+  {id:'s11',time:'4:30 PM',name:'🌅 Quran + Iftar Prep',desc:'Recite Quran. Phone away. Slow this hour.',tag:'p',start:'16:30',end:'18:15'},
+  {id:'s12',time:'6:15 PM',name:'🌙 Iftar + Maghrib',desc:'Break fast. Pray Maghrib immediately.',tag:'p',start:'18:15',end:'19:30'},
+  {id:'s13',time:'7:30 PM',name:'🕌 Isha + Tarawih',desc:'Full Tarawih every night. Core of transformation.',tag:'p',start:'19:30',end:'21:00'},
+  {id:'s14',time:'9:00 PM',name:'📓 Journal + Review',desc:"Write insights. Tomorrow's #1 priority. Phone away.",tag:'w',start:'21:00',end:'22:00'},
+  {id:'s15',time:'10:00 PM',name:'💤 Sleep — Hard Cutoff',desc:'Protect sleep like Fajr. Phone in another room.',tag:'s',start:'22:00',end:'04:15'},
+];
+
+const ROTATION_DATA = [
+  {day:'Saturday',key:'sat',pills:[
+    {l:'IELTS Reading',c:'pi'},{l:'Gym — Push',c:'pg'},{l:'Data Analytics',c:'pd'},{l:'Nayabazar',c:'pb'},{l:'Master Your Emotions',c:'pm'}
+  ]},
+  {day:'Sunday',key:'sun',pills:[
+    {l:'IELTS Listening',c:'pi'},{l:'Gym — Pull',c:'pg'},{l:'Arabic — Duolingo+Madinah',c:'pa'},{l:'Immigration Docs',c:'pd'},{l:'Master Your Emotions',c:'pm'}
+  ]},
+  {day:'Monday',key:'mon',pills:[
+    {l:'IELTS Writing',c:'pi'},{l:'Gym — Legs',c:'pg'},{l:'Data Analytics',c:'pd'},{l:'Nayabazar + Remote Jobs',c:'pb'},{l:'Arabic Revision',c:'pa'}
+  ]},
+  {day:'Tuesday',key:'tue',pills:[
+    {l:'IELTS Speaking',c:'pi'},{l:'Gym — Push',c:'pg'},{l:'Arabic — New Lesson',c:'pa'},{l:'Immigration Apps',c:'pd'},{l:'Master Your Emotions',c:'pm'}
+  ]},
+  {day:'Wednesday',key:'wed',pills:[
+    {l:'IELTS Mock Test',c:'pi'},{l:'Gym — Pull',c:'pg'},{l:'Data Analytics',c:'pd'},{l:'Nayabazar Strategy',c:'pb'},{l:'Arabic Vocab',c:'pa'}
+  ]},
+  {day:'Thursday',key:'thu',pills:[
+    {l:'IELTS Reading',c:'pi'},{l:'Gym — Legs',c:'pg'},{l:'Arabic — Quran Listening',c:'pa'},{l:'Remote Jobs Apply',c:'pd'},{l:'Master Your Emotions',c:'pm'}
+  ]},
+  {day:'Friday',key:'fri',pills:[
+    {l:"Jumu'ah + Rest",c:'pr'},{l:'Arabic — Quran Focus',c:'pa'},{l:'Light Walk',c:'pr'},{l:'Weekly Review + Journal',c:'pd'},{l:'Master Your Emotions',c:'pm'}
+  ]},
+];
+
+const DEF_HABITS = [
+  {id:'h1',name:'🕌 Fajr Prayer',desc:'Wake up + pray on time',color:'var(--gold)'},
+  {id:'h2',name:'🕌 Dhuhr Prayer',desc:'Pray on time',color:'var(--gold)'},
+  {id:'h3',name:'🕌 Asr Prayer',desc:'Pray on time',color:'var(--gold)'},
+  {id:'h4',name:'🕌 Maghrib + Isha + Tarawih',desc:'Full Tarawih every night',color:'var(--gold)'},
+  {id:'h5',name:'📖 IELTS Practice',desc:'45 min minimum',color:'var(--blue)'},
+  {id:'h6',name:'🌙 Arabic Study',desc:'30 min — Duolingo or Madinah',color:'var(--gold)'},
+  {id:'h7',name:'🏋️ Gym / Workout',desc:'Push/Pull/Legs rotation',color:'var(--red)'},
+  {id:'h8',name:'📚 Read 20 Pages',desc:'Master Your Emotions',color:'var(--pink)'},
+  {id:'h9',name:'🏪 Nayabazar',desc:'Show up + contribute',color:'var(--red)'},
+  {id:'h10',name:'📓 Journal',desc:'Handwrite before sleep',color:'var(--green)'},
+  {id:'h11',name:'📵 Phone Away by 10PM',desc:'Hard cutoff',color:'var(--purple)'},
+  {id:'h12',name:'✈️ Immigration Work',desc:'Apps, docs, or research',color:'var(--teal)'},
+];
+
+const DEF_GOALS = [
+  {id:'g1',emoji:'📝',title:'IELTS — BAND 9',desc:'Book exam → Practice daily. Unlocks AU 482, CA LMIA, UK Skilled Worker.',color:'linear-gradient(90deg,#3578c8,#1db8a4)',
+    tasks:['Book IELTS exam — britishcouncil.org.bd','Complete 5 full mock tests','Score Band 7.5+ on mock','Speaking practice 3x/week','Write 1 Task 1 + 1 Task 2 per week']},
+  {id:'g2',emoji:'🌙',title:'ARABIC LANGUAGE',desc:'Quranic Arabic — to feel Salah. 30 min daily minimum.',color:'linear-gradient(90deg,#c9983a,#f0c45a)',
+    tasks:['Learn all Arabic letters','Complete Madinah Arabic Book 1','30-day Duolingo streak','Understand every word of Surah Al-Fatiha','Understand every word of Salah']},
+  {id:'g3',emoji:'🇦🇺',title:'AUSTRALIA — 482 VISA',desc:'Truck Driver route (ANZSCO 733111). Salary floor AUD $76,515. PR in 2 years.',color:'linear-gradient(90deg,#38c870,#1db8a4)',
+    tasks:['BRTA professional/heavy vehicle license upgrade','Police clearance certificate (~৳500)','NSU official transcripts','IDP from BRTA (~৳2,000)','Medical checkup (immigration standard)','Post 10+ applications on SEEK/482jobs','Confirm offer → 482 lodgment']},
+  {id:'g4',emoji:'🇨🇦',title:'CANADA — LMIA ROUTE',desc:'NOC 73300 Truck Driver. SINP Long-Haul Project. PR in 2–2.5 years.',color:'linear-gradient(90deg,#e05555,#e08030)',
+    tasks:['Apply to Bison Transport','Apply to Trimac + TFI International','Apply to Canada Cartage','Job Bank (NOC 73300) — 10 apps/week','Negotiate MELT funding with employer']},
+  {id:'g5',emoji:'💼',title:'REMOTE JOB — BD TO WORLD',desc:'Digital marketing or analytics role. Fund the flight. Target: $500–2000/mo.',color:'linear-gradient(90deg,#7a5abf,#3578c8)',
+    tasks:['Build marketing portfolio PDF','Apply to Upwork/Fiverr (data entry, Excel)','Apply to 5 remote marketing roles/week','Complete Microsoft Data Analytics cert','Add cert to LinkedIn profile']},
+  {id:'g6',emoji:'🏪',title:'NAYABAZAR STRATEGY',desc:'Family bond paper business. Your real MBA. Foundation of Masters SOP.',color:'linear-gradient(90deg,#c9983a,#e08030)',
+    tasks:['Map all clients + what they buy','Build basic P&L in Excel','Identify 1 inefficiency to fix','Apply analytics to real business data','Write formal case study for SOP']},
+];
+
+const DEF_BOOKS = [
+  {id:'b1',emoji:'🧠',title:'Master Your Emotions',author:'Thibaut Meurisse',total:220,current:20,status:'r',notes:'Chapter 1-2 done. Key insight: emotions are not facts. They are interpretations.'},
+  {id:'b2',emoji:'⚛️',title:'Atomic Habits',author:'James Clear',total:319,current:0,status:'q',notes:'Phase 1 reading list — start after Master Your Emotions.'},
+  {id:'b3',emoji:'💪',title:"Can't Hurt Me",author:'David Goggins',total:364,current:0,status:'q',notes:'Phase 1 — for the days you want to quit.'},
+  {id:'b4',emoji:'💻',title:'Deep Work',author:'Cal Newport',total:296,current:0,status:'q',notes:'Phase 1 — directly applicable to your current situation.'},
+  {id:'b5',emoji:'🌙',title:'Arabic Vocab Journal',author:'Self-study',total:0,current:0,status:'r',notes:'Daily vocab, Madinah Arabic notes, words from Salah.'},
+];
+
+const DEF_APPS = [
+  {id:'a1',emoji:'🇦🇺',company:'SEEK Australia',role:'Truck Driver (482 Visa)',status:'n',notes:'Start: seek.com.au — search "482 truck driver"'},
+  {id:'a2',emoji:'🇨🇦',company:'Bison Transport',role:'Transport Truck Driver',status:'n',notes:'bisontransport.com/careers'},
+  {id:'a3',emoji:'🇨🇦',company:'Job Bank Canada',role:'NOC 73300 Truck Driver',status:'n',notes:'jobbank.gc.ca — filter NOC 73300'},
+  {id:'a4',emoji:'🇬🇧',company:'LinkedIn UK',role:'Digital Marketing Manager',status:'n',notes:'Skilled Worker Visa route. Salary floor: £41,700'},
+  {id:'a5',emoji:'🌐',company:'Upwork',role:'Digital Marketing / Analytics',status:'n',notes:'Remote income while waiting for visa. $50-200/mo to start'},
+];
+
+const REMOTE_JOBS = [
+  {icon:'📊',name:'Upwork — Data Analytics',desc:'Excel, SQL, data entry. $20–50/hr. Start now.',url:'https://www.upwork.com/nx/search/jobs/?q=data+analytics+marketing',badge:'REMOTE'},
+  {icon:'💼',name:'LinkedIn Remote — Digital Marketing',desc:'Filter: Remote, Bangladesh/Worldwide.',url:'https://www.linkedin.com/jobs/search/?keywords=digital+marketing+remote&f_WT=2',badge:'REMOTE'},
+  {icon:'🎯',name:'Fiverr — Marketing Services',desc:'Create gigs for social media, SEO, campaigns.',url:'https://www.fiverr.com',badge:'FREELANCE'},
+  {icon:'🏢',name:'Toptal — Marketing',desc:'Elite remote platform. Build portfolio first.',url:'https://www.toptal.com',badge:'ELITE'},
+  {icon:'📱',name:'Remote.co — Marketing Jobs',desc:'Curated remote marketing roles worldwide.',url:'https://remote.co/remote-jobs/marketing/',badge:'REMOTE'},
+  {icon:'🌍',name:'We Work Remotely',desc:'Top remote job board. Marketing + Analytics roles.',url:'https://weworkremotely.com',badge:'REMOTE'},
+];
+
+const IMM_JOBS = [
+  {icon:'🇦🇺',name:'SEEK — 482 Truck Driver',desc:'Australia. Sponsored. ANZSCO 733111.',url:'https://www.seek.com.au/jobs?q=truck+driver+sponsorship',badge:'AU 482'},
+  {icon:'🚛',name:'482jobs.com',desc:'AU 482 visa sponsored jobs only.',url:'https://482jobs.com/sponsored-truck-driver-jobs-in-australia/',badge:'AU 482'},
+  {icon:'🇨🇦',name:'Canada Job Bank — NOC 73300',desc:'Official LMIA jobs. Filter truck driver.',url:'https://www.jobbank.gc.ca/jobsearch/jobsearch?sort=D&om=2&fnm=driver',badge:'CA LMIA'},
+  {icon:'🚛',name:'Bison Transport',desc:'Canada. One of largest carriers. Funds MELT.',url:'https://www.bisontransport.com/careers',badge:'CA'},
+  {icon:'🚛',name:'Trimac Transportation',desc:'Canada. LMIA-eligible positions.',url:'https://www.trimac.com/careers',badge:'CA'},
+  {icon:'🇬🇧',name:'LinkedIn UK — Marketing Visa',desc:'Digital Marketing Manager. £41,700+.',url:'https://www.linkedin.com/jobs/search/?keywords=digital+marketing+manager+visa+sponsorship&location=United+Kingdom',badge:'UK SW'},
+  {icon:'🇩🇪',name:'Germany Chancenkarte',desc:'NSU ANABIN H+/-. Points eligible.',url:'https://www.make-it-in-germany.com/en/visa-residence/chancenkarte',badge:'DE'},
+];
+
+const RESOURCES_DATA = [
+  {group:'📝 IELTS',items:[
+    {i:'🎯',n:'IELTS Liz',d:'Band 7–9 lessons, 300+ free pages',u:'https://ieltsliz.com'},
+    {i:'🇬🇧',n:'British Council BD — Book Exam',d:'britishcouncil.org.bd — ৳23,000',u:'https://www.britishcouncil.org.bd/en/exam/ielts'},
+    {i:'📊',n:'IELTS Online Tests',d:'Mock tests with instant band score',u:'https://ieltsonlinetests.com'},
+    {i:'💬',n:'IELTSBuddy',d:'Practice tests + sample answers',u:'https://ieltsbuddy.com'},
+    {i:'📹',n:'E2 IELTS YouTube',d:'Free video lessons all 4 modules',u:'https://youtube.com/@E2IELTS'},
+  ]},
+  {group:'🌙 Arabic / Quran',items:[
+    {i:'📖',n:'Madinah Arabic',d:'Free Quranic Arabic — best for Muslims',u:'https://www.madinaharabic.com'},
+    {i:'🦉',n:'Duolingo Arabic',d:'Daily streaks, gamified',u:'https://www.duolingo.com/course/ar/en/Learn-Arabic'},
+    {i:'📿',n:'Quran Word by Word',d:'Every word translated + audio',u:'https://quranwbw.com'},
+    {i:'🔍',n:'Quran Corpus',d:'Grammar + root analysis for every word',u:'https://corpus.quran.com'},
+    {i:'📺',n:'Nouman Ali Khan',d:'Meaningful Prayer series — understand Salah',u:'https://youtube.com/@bayyinah'},
+  ]},
+  {group:'✈️ Immigration',items:[
+    {i:'🇦🇺',n:'SEEK — Australia',d:'AU 482 Truck Driver jobs',u:'https://www.seek.com.au'},
+    {i:'🇨🇦',n:'Job Bank — Canada',d:'Official CA LMIA jobs (NOC 73300)',u:'https://www.jobbank.gc.ca'},
+    {i:'💼',n:'LinkedIn Jobs',d:'UK Digital Marketing + global',u:'https://www.linkedin.com/jobs'},
+    {i:'🇩🇪',n:'Germany Chancenkarte',d:'NSU eligible. Points-based.',u:'https://www.make-it-in-germany.com/en/visa-residence/chancenkarte'},
+    {i:'🚗',n:'BRTA Bangladesh',d:'Upgrade license to professional/heavy vehicle',u:'https://brta.gov.bd'},
+  ]},
+  {group:'💻 Data Analytics',items:[
+    {i:'🪟',n:'Microsoft Learn',d:'Free Power BI + analytics paths',u:'https://learn.microsoft.com/en-us/training/'},
+    {i:'🤖',n:'Kaggle Learn',d:'Free Python, SQL, data analysis',u:'https://www.kaggle.com/learn'},
+    {i:'📊',n:'Mode SQL Tutorial',d:'Analytics-focused SQL',u:'https://mode.com/sql-tutorial'},
+    {i:'🎓',n:'Harvard CS50P (Free)',d:'Python from scratch',u:'https://cs50.harvard.edu/python'},
+  ]},
+];
+
+// ── 99 NAMES OF ALLAH ──
+const NAMES_99 = [
+  {n:1,ar:'ٱللَّهُ',tr:'Allah',m:'The One God',d:'The greatest Name — encompasses all attributes.'},
+  {n:2,ar:'ٱلرَّحْمَـٰنُ',tr:'Ar-Rahmaan',m:'The Most Gracious',d:'Bestows mercy on all creation, believers and disbelievers alike.'},
+  {n:3,ar:'ٱلرَّحِيمُ',tr:'Ar-Raheem',m:'The Most Merciful',d:'Special continuous mercy reserved for the believers.'},
+  {n:4,ar:'ٱلْمَلِكُ',tr:'Al-Malik',m:'The Absolute Ruler',d:'The Sovereign King who owns all dominion.'},
+  {n:5,ar:'ٱلْقُدُّوسُ',tr:'Al-Quddus',m:'The Pure One',d:'Free from all deficiencies, errors, and imperfections.'},
+  {n:6,ar:'ٱلسَّلَامُ',tr:'As-Salaam',m:'The Source of Peace',d:'Source of all safety, peace, and security.'},
+  {n:7,ar:'ٱلْمُؤْمِنُ',tr:'Al-Mu\'min',m:'The Inspirer of Faith',d:'Grants safety and certifies the truth.'},
+  {n:8,ar:'ٱلْمُهَيْمِنُ',tr:'Al-Muhaymin',m:'The Guardian',d:'The Watchful Protector who oversees all things.'},
+  {n:9,ar:'ٱلْعَزِيزُ',tr:'Al-Azeez',m:'The Victorious',d:'The Almighty who is never overcome or defeated.'},
+  {n:10,ar:'ٱلْجَبَّارُ',tr:'Al-Jabbaar',m:'The Compeller',d:'He who can repair the broken and compel the disobedient.'},
+  {n:11,ar:'ٱلْمُتَكَبِّرُ',tr:'Al-Mutakabbir',m:'The Greatest',d:'Supreme in greatness and majesty.'},
+  {n:12,ar:'ٱلْخَالِقُ',tr:'Al-Khaaliq',m:'The Creator',d:'The One who creates from nothing.'},
+  {n:13,ar:'ٱلْبَارِئُ',tr:'Al-Baari\'',m:'The Originator',d:'Creates things in proper proportions without any model.'},
+  {n:14,ar:'ٱلْمُصَوِّرُ',tr:'Al-Musawwir',m:'The Fashioner',d:'The Shaper who gives each thing its unique form.'},
+  {n:15,ar:'ٱلْغَفَّارُ',tr:'Al-Ghaffaar',m:'The All-Forgiving',d:'Forgives sins repeatedly and continuously.'},
+  {n:16,ar:'ٱلْقَهَّارُ',tr:'Al-Qahhaar',m:'The Subduer',d:'Dominates everything and everyone.'},
+  {n:17,ar:'ٱلْوَهَّابُ',tr:'Al-Wahhaab',m:'The Giver of All',d:'Bestows gifts without expectation of anything in return.'},
+  {n:18,ar:'ٱلرَّزَّاقُ',tr:'Ar-Razzaaq',m:'The Sustainer',d:'The Provider of all sustenance — physical and spiritual.'},
+  {n:19,ar:'ٱلْفَتَّاحُ',tr:'Al-Fattaah',m:'The Opener',d:'Opens doors of mercy, provision, and solutions.'},
+  {n:20,ar:'ٱلْعَلِيمُ',tr:'Al-\'Aleem',m:'The All-Knowing',d:'Has complete knowledge of all things, seen and unseen.'},
+  {n:21,ar:'ٱلْقَابِضُ',tr:'Al-Qaabid',m:'The Withholder',d:'Withholds and restricts according to His wisdom.'},
+  {n:22,ar:'ٱلْبَاسِطُ',tr:'Al-Baasit',m:'The Extender',d:'Extends provision and mercy generously.'},
+  {n:23,ar:'ٱلْخَافِضُ',tr:'Al-Khaafid',m:'The Abaser',d:'Lowers the arrogant and the oppressors.'},
+  {n:24,ar:'ٱلرَّافِعُ',tr:'Ar-Raafi\'',m:'The Exalter',d:'Raises the believers and the righteous in rank.'},
+  {n:25,ar:'ٱلْمُعِزُّ',tr:'Al-Mu\'izz',m:'The Bestower of Honour',d:'Grants honour and might to whom He wills.'},
+  {n:26,ar:'ٱلْمُذِلُّ',tr:'Al-Mudhill',m:'The Humiliator',d:'Humiliates and degrades the arrogant.'},
+  {n:27,ar:'ٱلسَّمِيعُ',tr:'As-Samee\'',m:'The All-Hearing',d:'Hears every sound, whisper, and thought.'},
+  {n:28,ar:'ٱلْبَصِيرُ',tr:'Al-Baseer',m:'The All-Seeing',d:'Sees all things at all times.'},
+  {n:29,ar:'ٱلْحَكَمُ',tr:'Al-Hakam',m:'The Judge',d:'The ultimate arbiter of all matters.'},
+  {n:30,ar:'ٱلْعَدْلُ',tr:'Al-\'Adl',m:'The Just',d:'Perfectly just in all His decisions.'},
+  {n:31,ar:'ٱللَّطِيفُ',tr:'Al-Lateef',m:'The Subtle One',d:'Aware of the finest details; gentle in His ways.'},
+  {n:32,ar:'ٱلْخَبِيرُ',tr:'Al-Khabeer',m:'The Aware',d:'Completely acquainted with all things.'},
+  {n:33,ar:'ٱلْحَلِيمُ',tr:'Al-Haleem',m:'The Forbearing',d:'Slow to punish; patient with His creation.'},
+  {n:34,ar:'ٱلْعَظِيمُ',tr:'Al-\'Adheem',m:'The Magnificent',d:'Supreme in greatness beyond comprehension.'},
+  {n:35,ar:'ٱلْغَفُورُ',tr:'Al-Ghafoor',m:'The All-Forgiving',d:'Forgives without limit or condition.'},
+  {n:36,ar:'ٱلشَّكُورُ',tr:'Ash-Shakoor',m:'The Appreciative',d:'Rewards good deeds abundantly.'},
+  {n:37,ar:'ٱلْعَلِيُّ',tr:'Al-\'Aliyy',m:'The Most High',d:'Exalted above all creation in every way.'},
+  {n:38,ar:'ٱلْكَبِيرُ',tr:'Al-Kabeer',m:'The Greatest',d:'Great in every attribute and aspect.'},
+  {n:39,ar:'ٱلْحَفِيظُ',tr:'Al-Hafeez',m:'The Preserver',d:'Guards and preserves all things.'},
+  {n:40,ar:'ٱلْمُقِيتُ',tr:'Al-Muqeet',m:'The Nourisher',d:'Sustains, maintains, and nourishes all creation.'},
+  {n:41,ar:'ٱلْحَسِيبُ',tr:'Al-Haseeb',m:'The Reckoner',d:'Sufficient as an accountant of all deeds.'},
+  {n:42,ar:'ٱلْجَلِيلُ',tr:'Al-Jaleel',m:'The Majestic',d:'Possesses all attributes of greatness and glory.'},
+  {n:43,ar:'ٱلْكَرِيمُ',tr:'Al-Kareem',m:'The Generous',d:'Generous beyond measure; noble in character.'},
+  {n:44,ar:'ٱلرَّقِيبُ',tr:'Ar-Raqeeb',m:'The Watchful',d:'Constantly watches over all creation.'},
+  {n:45,ar:'ٱلْمُجِيبُ',tr:'Al-Mujeeb',m:'The Responsive',d:'Answers every sincere prayer and call.'},
+  {n:46,ar:'ٱلْوَاسِعُ',tr:'Al-Waasi\'',m:'The All-Encompassing',d:'Vast in knowledge, mercy, and provision.'},
+  {n:47,ar:'ٱلْحَكِيمُ',tr:'Al-Hakeem',m:'The Perfectly Wise',d:'All His actions are based on perfect wisdom.'},
+  {n:48,ar:'ٱلْوَدُودُ',tr:'Al-Wadood',m:'The Loving',d:'Loves His believing servants unconditionally.'},
+  {n:49,ar:'ٱلْمَجِيدُ',tr:'Al-Majeed',m:'The Most Glorious',d:'Perfect in honour, glory, and magnificence.'},
+  {n:50,ar:'ٱلْبَاعِثُ',tr:'Al-Baa\'ith',m:'The Resurrector',d:'Will resurrect all creation on the Day of Judgement.'},
+  {n:51,ar:'ٱلشَّهِيدُ',tr:'Ash-Shaheed',m:'The Witness',d:'Witnesses all things at all times.'},
+  {n:52,ar:'ٱلْحَقُّ',tr:'Al-Haqq',m:'The Truth',d:'The absolute, unchanging truth.'},
+  {n:53,ar:'ٱلْوَكِيلُ',tr:'Al-Wakeel',m:'The Trustee',d:'The best disposer of all affairs.'},
+  {n:54,ar:'ٱلْقَوِيُّ',tr:'Al-Qawiyy',m:'The All-Powerful',d:'Perfect in strength, never weakened.'},
+  {n:55,ar:'ٱلْمَتِينُ',tr:'Al-Mateen',m:'The Firm',d:'Firm and steadfast; never changes.'},
+  {n:56,ar:'ٱلْوَلِيُّ',tr:'Al-Waliyy',m:'The Protecting Friend',d:'The closest ally and protector of believers.'},
+  {n:57,ar:'ٱلْحَمِيدُ',tr:'Al-Hameed',m:'The Praiseworthy',d:'Deserves all praise for His perfection.'},
+  {n:58,ar:'ٱلْمُحْصِي',tr:'Al-Muhsee',m:'The Reckoner',d:'Counts and records every single thing.'},
+  {n:59,ar:'ٱلْمُبْدِئُ',tr:'Al-Mubdi\'',m:'The Originator',d:'Originates creation from nothing.'},
+  {n:60,ar:'ٱلْمُعِيدُ',tr:'Al-Mu\'eed',m:'The Restorer',d:'Returns creation to life after death.'},
+  {n:61,ar:'ٱلْمُحْيِي',tr:'Al-Muhyee',m:'The Giver of Life',d:'Gives life to all living things.'},
+  {n:62,ar:'ٱلْمُمِيتُ',tr:'Al-Mumeet',m:'The Taker of Life',d:'Causes death according to His wisdom.'},
+  {n:63,ar:'ٱلْحَيُّ',tr:'Al-Hayy',m:'The Ever-Living',d:'Lives eternally; never dies or sleeps.'},
+  {n:64,ar:'ٱلْقَيُّومُ',tr:'Al-Qayyoom',m:'The Self-Subsisting',d:'Sustains all existence; needs nothing.'},
+  {n:65,ar:'ٱلْوَاجِدُ',tr:'Al-Waajid',m:'The Finder',d:'Finds and obtains whatever He wills.'},
+  {n:66,ar:'ٱلْمَاجِدُ',tr:'Al-Maajid',m:'The Illustrious',d:'Glorious in essence and attributes.'},
+  {n:67,ar:'ٱلْوَاحِدُ',tr:'Al-Waahid',m:'The Unique',d:'One without any partner or equal.'},
+  {n:68,ar:'ٱلْأَحَدُ',tr:'Al-Ahad',m:'The One',d:'Absolutely and uniquely One in all senses.'},
+  {n:69,ar:'ٱلصَّمَدُ',tr:'As-Samad',m:'The Eternal Refuge',d:'The One upon whom all depend; needs nothing.'},
+  {n:70,ar:'ٱلْقَادِرُ',tr:'Al-Qaadir',m:'The All-Powerful',d:'Capable of everything with ease.'},
+  {n:71,ar:'ٱلْمُقْتَدِرُ',tr:'Al-Muqtadir',m:'The Determiner',d:'Has complete power over all things.'},
+  {n:72,ar:'ٱلْمُقَدِّمُ',tr:'Al-Muqaddim',m:'The Expediter',d:'Brings forward whatever He wills.'},
+  {n:73,ar:'ٱلْمُؤَخِّرُ',tr:'Al-Mu\'akhkhir',m:'The Delayer',d:'Delays whatever He wills according to wisdom.'},
+  {n:74,ar:'ٱلْأَوَّلُ',tr:'Al-Awwal',m:'The First',d:'Before Him there is nothing.'},
+  {n:75,ar:'ٱلْآخِرُ',tr:'Al-Aakhir',m:'The Last',d:'After Him there is nothing.'},
+  {n:76,ar:'ٱلظَّاهِرُ',tr:'Az-Dhaahir',m:'The Manifest',d:'His signs are evident throughout creation.'},
+  {n:77,ar:'ٱلْبَاطِنُ',tr:'Al-Baatin',m:'The Hidden',d:'His essence is beyond comprehension.'},
+  {n:78,ar:'ٱلْوَالِي',tr:'Al-Waali',m:'The Governor',d:'Governs and controls all affairs.'},
+  {n:79,ar:'ٱلْمُتَعَالِي',tr:'Al-Muta\'aali',m:'The Most Exalted',d:'Supremely exalted above all.'},
+  {n:80,ar:'ٱلْبَرُّ',tr:'Al-Barr',m:'The Source of All Goodness',d:'Benevolent and kind to His creation.'},
+  {n:81,ar:'ٱلتَّوَّابُ',tr:'At-Tawwaab',m:'The Guide to Repentance',d:'Accepts repentance repeatedly and lovingly.'},
+  {n:82,ar:'ٱلْمُنْتَقِمُ',tr:'Al-Muntaqim',m:'The Avenger',d:'Takes righteous vengeance on oppressors.'},
+  {n:83,ar:'ٱلْعَفُوُّ',tr:'Al-\'Afuww',m:'The Pardoner',d:'Pardons and erases sins completely.'},
+  {n:84,ar:'ٱلرَّءُوفُ',tr:'Ar-Ra\'oof',m:'The Compassionate',d:'Extremely compassionate and gentle.'},
+  {n:85,ar:'مَالِكُ ٱلْمُلْكِ',tr:'Maalik-ul-Mulk',m:'The Eternal Owner of Sovereignty',d:'Owns all dominion — gives and takes as He wills.'},
+  {n:86,ar:'ذُو ٱلْجَلَالِ وَٱلْإِكْرَامِ',tr:'Dhul-Jalaali wal-Ikraam',m:'Lord of Majesty and Honour',d:'Possesses both overwhelming greatness and gracious honour.'},
+  {n:87,ar:'ٱلْمُقْسِطُ',tr:'Al-Muqsit',m:'The Equitable',d:'Acts with justice and equity.'},
+  {n:88,ar:'ٱلْجَامِعُ',tr:'Al-Jaami\'',m:'The Gatherer',d:'Gathers all creation on the Day of Judgement.'},
+  {n:89,ar:'ٱلْغَنِيُّ',tr:'Al-Ghaniyy',m:'The Self-Sufficient',d:'Completely free from any need.'},
+  {n:90,ar:'ٱلْمُغْنِي',tr:'Al-Mughnee',m:'The Enricher',d:'Enriches whom He wills.'},
+  {n:91,ar:'ٱلْمَانِعُ',tr:'Al-Maani\'',m:'The Preventer',d:'Withholds harm and what is not beneficial.'},
+  {n:92,ar:'ٱلضَّارُّ',tr:'Ad-Daarr',m:'The Distresser',d:'Has power to bring harm as part of His plan.'},
+  {n:93,ar:'ٱلنَّافِعُ',tr:'An-Naafi\'',m:'The Propitious',d:'Creator of all benefit and goodness.'},
+  {n:94,ar:'ٱلنُّورُ',tr:'An-Noor',m:'The Light',d:'The light of the heavens and the earth.'},
+  {n:95,ar:'ٱلْهَادِي',tr:'Al-Haadee',m:'The Guide',d:'Guides whom He wills to the straight path.'},
+  {n:96,ar:'ٱلْبَدِيعُ',tr:'Al-Badee\'',m:'The Incomparable Originator',d:'Creates without precedent — uniquely original.'},
+  {n:97,ar:'ٱلْبَاقِي',tr:'Al-Baaqi',m:'The Everlasting',d:'Eternally endures while all else perishes.'},
+  {n:98,ar:'ٱلْوَارِثُ',tr:'Al-Waarith',m:'The Inheritor',d:'Inherits all things after creation ends.'},
+  {n:99,ar:'ٱلرَّشِيدُ',tr:'Ar-Rasheed',m:'The Guide to the Right Path',d:'Guides all to righteousness through wisdom.'},
+];
+
+// ARABIC WORDS
+const ARABIC_WORDS = [
+  {ar:'صَبْرٌ',tr:'Sabr',m:'Patience / perseverance',ctx:'Core Quran concept. The believer who has sabr is never truly defeated.'},
+  {ar:'تَوَكُّلٌ',tr:'Tawakkul',m:'Reliance on Allah',ctx:'Do your best (du\'aa + action), then fully trust in Allah\'s plan.'},
+  {ar:'إِخْلَاصٌ',tr:'Ikhlaas',m:'Sincerity / purity of intention',ctx:'Actions are judged by intentions. Make every goal for the right reason.'},
+  {ar:'شُكْرٌ',tr:'Shukr',m:'Gratitude / thankfulness',ctx:'Those who are grateful, Allah increases their blessings (Quran 14:7).'},
+  {ar:'تَوْبَةٌ',tr:'Tawbah',m:'Repentance / turning back',ctx:'Allah loves those who repent. No sin is too great for His forgiveness.'},
+  {ar:'عَزِيمَةٌ',tr:'\'Azeemah',m:'Determination / resolve',ctx:'The quality you need to leave BD and build your new life.'},
+  {ar:'هِجْرَةٌ',tr:'Hijrah',m:'Migration / moving for a better life',ctx:'The Prophet (ﷺ) migrated for a better life. Your immigration is a hijrah.'},
+  {ar:'عِلْمٌ',tr:'\'Ilm',m:'Knowledge / learning',ctx:'Seeking \'ilm is obligatory. IELTS, data analytics, Arabic — all are \'ilm.'},
+  {ar:'نِيَّةٌ',tr:'Niyyah',m:'Intention / purpose',ctx:'Make your niyyah clear: emigrate, build a good life, support your family.'},
+  {ar:'دُعَاءٌ',tr:'Du\'aa',m:'Supplication / prayer',ctx:'The weapon of the believer. Make du\'aa for your visa, your IELTS, your job.'},
+  {ar:'فَضْلٌ',tr:'Fadl',m:'Grace / abundance',ctx:'Allah\'s fadl (bounty) is vast. Ask for it openly and often.'},
+  {ar:'قَنَاعَةٌ',tr:'Qanaa\'ah',m:'Contentment with what you have',ctx:'Be content now while working hard for more. They are not contradictory.'},
+  {ar:'جَدٌّ',tr:'Jadd',m:'Seriousness / diligence',ctx:'The Quran praises those who take their duties seriously.'},
+  {ar:'إِرَادَةٌ',tr:'Iraadah',m:'Will / determination',ctx:'Your will determines your future. What Allah has written needs your effort.'},
+  {ar:'حِكْمَةٌ',tr:'Hikmah',m:'Wisdom',ctx:'Granted to whom He wills. Wisdom is knowing what to prioritise and when.'},
+];
+
+// WORD OF THE DAY LIST
+const WOTD_LIST = [
+  {w:'Tenacity',t:'noun',m:'The quality of being very determined; not giving up.',e:'His tenacity in applying for 60+ jobs before getting his first interview was remarkable.',syn:['persistence','determination','grit','resilience'],ar:'مُثَابَرَة',arm:'Perseverance'},
+  {w:'Pragmatic',t:'adj',m:'Dealing with things sensibly and realistically rather than theoretically.',e:'A pragmatic approach to immigration means applying to all 4 countries simultaneously.',syn:['practical','realistic','sensible','grounded'],ar:'عَمَلِي',arm:'Practical'},
+  {w:'Meticulous',t:'adj',m:'Showing great attention to detail; very careful and precise.',e:'His meticulous documentation made the visa application flawless.',syn:['thorough','precise','careful','diligent'],ar:'دَقِيق',arm:'Precise'},
+  {w:'Articulate',t:'adj/verb',m:'Able to express ideas clearly and effectively in words.',e:'An articulate IELTS Speaking candidate structures answers with clear examples.',syn:['eloquent','fluent','expressive','coherent'],ar:'فَصِيح',arm:'Eloquent'},
+  {w:'Perseverance',t:'noun',m:'Continued effort to do something despite difficulty or failure.',e:'Without perseverance, no one leaves their comfort zone and reaches a new country.',syn:['persistence','determination','tenacity','endurance'],ar:'مُثَابَرَة',arm:'Steadfastness'},
+  {w:'Diligent',t:'adj',m:'Having or showing care and conscientiousness in one\'s work.',e:'A diligent IELTS student practices all four skills every single day.',syn:['hardworking','industrious','conscientious','thorough'],ar:'مُجْتَهِد',arm:'Hardworking'},
+  {w:'Resilient',t:'adj',m:'Able to withstand or recover quickly from difficult conditions.',e:'Every successful immigrant is resilient — setbacks don\'t stop them.',syn:['tough','adaptable','strong','unbreakable'],ar:'صَامِد',arm:'Steadfast'},
+  {w:'Aspiration',t:'noun',m:'A hope or ambition of achieving something significant.',e:'His aspiration to build a life in Australia drives every early morning study session.',syn:['ambition','goal','dream','aim'],ar:'طُمُوح',arm:'Ambition'},
+  {w:'Credibility',t:'noun',m:'The quality of being trusted and believed in.',e:'A strong portfolio builds the credibility needed for UK visa sponsorship.',syn:['trustworthiness','reliability','authority','reputation'],ar:'مَصْدَاقِيَّة',arm:'Trustworthiness'},
+  {w:'Leverage',t:'verb/noun',m:'Use something to maximum advantage.',e:'He leveraged his political campaign experience to stand out among digital marketing candidates.',syn:['use','utilise','exploit','maximise'],ar:'يَسْتَغِل',arm:'Make use of'},
+  {w:'Optimise',t:'verb',m:'Make the best or most effective use of something.',e:'Optimise your schedule around your 5 daily prayers — let them be anchors.',syn:['improve','maximise','enhance','refine'],ar:'يُحَسِّن',arm:'Improve/Perfect'},
+  {w:'Threshold',t:'noun',m:'A point that must be exceeded to begin producing a given effect.',e:'The UK Skilled Worker visa has a salary threshold of £41,700 for marketing roles.',syn:['limit','minimum','requirement','benchmark'],ar:'حَدٌّ أَدْنَى',arm:'Minimum limit'},
+  {w:'Inevitable',t:'adj',m:'Certain to happen; unavoidable.',e:'With consistent daily action, success becomes inevitable.',syn:['certain','unavoidable','guaranteed','inescapable'],ar:'حَتْمِي',arm:'Certain/Unavoidable'},
+  {w:'Integrity',t:'noun',m:'The quality of being honest and having strong moral principles.',e:'Integrity means doing the right thing even when no one is watching.',syn:['honesty','principle','character','honour'],ar:'نَزَاهَة',arm:'Honesty/Integrity'},
+  {w:'Methodology',t:'noun',m:'A system of methods used in a particular area of activity.',e:'A clear methodology for immigration: document first, apply everywhere, follow up.',syn:['approach','system','process','framework'],ar:'مَنْهَجِيَّة',arm:'Systematic approach'},
+];
+
+// ══════════════════════════════════════
+//  STORAGE
+// ══════════════════════════════════════
+const WK=()=>{const d=new Date(),s=new Date(d.getFullYear(),0,1);return`${d.getFullYear()}-W${Math.ceil((((d-s)/86400000)+s.getDay()+1)/7)}`};
+const ld=(k,df)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):df}catch{return df}};
+const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
+
+let schedData=ld('lo_sched',DEF_SCHEDULE);
+let habitsData=ld('lo_habits',DEF_HABITS);
+let goalsData=ld('lo_goals',DEF_GOALS);
+let booksData=ld('lo_books',DEF_BOOKS);
+let appsData=ld('lo_apps',DEF_APPS);
+let habitChecks=ld('lo_hc_'+WK(),{});
+let goalChecks=ld('lo_gc',{});
+let bookExtra=ld('lo_bx',{});
+let calEvents=ld('lo_events',{});
+let milestones=ld('lo_milestones',[]);
+let streakData=ld('lo_streak',{streak:0,lastDate:''});
+let chatHistory=[];
+
+function saveAll(){
+  sv('lo_sched',schedData);sv('lo_habits',habitsData);sv('lo_goals',goalsData);
+  sv('lo_books',booksData);sv('lo_apps',appsData);sv('lo_hc_'+WK(),habitChecks);
+  sv('lo_gc',goalChecks);sv('lo_bx',bookExtra);sv('lo_events',calEvents);
+  sv('lo_milestones',milestones);sv('lo_streak',streakData);
+}
+
+// ══════════════════════════════════════
+//  CLOCK + DATES
+// ══════════════════════════════════════
+const RAMADAN_START=new Date('2026-03-01T00:00:00+06:00');
+const TRANSFORM_DAY1=new Date('2026-03-03T00:00:00+06:00');
+
+function toHijri(d){
+  const jd=Math.floor(d.getTime()/86400000+2440587.5);
+  const l=jd-1948440+10632,n=Math.floor((l-1)/10631);
+  const l2=l-10631*n+354;
+  const j=Math.floor((10985-l2)/5316)*Math.floor(50*l2/17719)+Math.floor(l2/5670)*Math.floor(43*l2/15238);
+  const l3=l2-Math.floor((30-j)/15)*Math.floor(17719*j/50)-Math.floor(j/16)*Math.floor(15238*j/43)+29;
+  const m=Math.floor(24*l3/709),day=l3-Math.floor(709*m/24),y=30*n+j-30;
+  const months=['Muharram','Safar','Rabiʿ al-Awwal','Rabiʿ ath-Thani','Jumada al-Ula','Jumada ath-Thaniyah','Rajab','Shaʿbaan','Ramadan','Shawwal','Dhul Qaʿdah','Dhul Hijjah'];
+  return`${day} ${months[m-1]} ${y} AH`;
+}
+
+let prayerTimes=null;
+
+function getDhakaTime(){
+  return new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Dhaka'}));
+}
+
+function tick(){
+  const now=getDhakaTime();
+  const timeStr=now.toLocaleTimeString('en-GB',{hour12:true,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('live-clock').textContent=timeStr;
+  document.getElementById('greg-full').textContent=now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('greg-short').textContent=now.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('hijri-date').textContent=toHijri(now);
+
+  // Ramadan day
+  const ramDay=Math.max(1,Math.min(30,Math.floor((now-RAMADAN_START)/(1000*60*60*24))+1));
+  const ramPct=Math.min(100,Math.round(ramDay/30*100));
+  document.getElementById('ram-day').textContent=ramDay;
+  document.getElementById('hk-day').textContent=ramDay;
+  document.getElementById('ram-fill').style.width=ramPct+'%';
+  document.getElementById('ram-pct-lbl').textContent=ramPct+'%';
+
+  // Days since transformation
+  const daysSince=Math.max(1,Math.floor((now-TRANSFORM_DAY1)/(1000*60*60*24))+1);
+  document.getElementById('day-count').textContent=daysSince;
+  document.getElementById('hk-days-since').textContent=daysSince;
+
+  // Current block
+  updateCurrentBlock(now);
+  if(prayerTimes) updateNextPrayer(now);
+}
+
+function getNowMinutes(d){return d.getHours()*60+d.getMinutes()}
+
+function updateCurrentBlock(now){
+  const mins=getNowMinutes(now);
+  let found=null;
+  for(const b of schedData){
+    if(!b.start||!b.end) continue;
+    const[sh,sm]=b.start.split(':').map(Number);
+    const[eh,em]=b.end.split(':').map(Number);
+    const s=sh*60+sm,e=eh*60+em;
+    const isCur=s<e?(mins>=s&&mins<e):(mins>=s||mins<e);
+    if(isCur){found=b;break}
+  }
+  if(found){
+    document.getElementById('cb-name').textContent=found.name;
+    document.getElementById('cb-meta').textContent=found.desc;
+  } else {
+    document.getElementById('cb-name').textContent='Free time / Unscheduled';
+    document.getElementById('cb-meta').textContent='Check your schedule.';
+  }
+}
+
+// ══════════════════════════════════════
+//  PRAYER TIMES API
+// ══════════════════════════════════════
+async function fetchPrayer(){
+  try{
+    const d=getDhakaTime();
+    const dd=String(d.getDate()).padStart(2,'0');
+    const mm=String(d.getMonth()+1).padStart(2,'0');
+    const url=`https://api.aladhan.com/v1/timingsByCity/${dd}-${mm}-${d.getFullYear()}?city=Dhaka&country=Bangladesh&method=1`;
+    const res=await fetch(url);
+    const data=await res.json();
+    if(data.code===200){
+      const t=data.data.timings;
+      prayerTimes=[
+        {name:'Fajr',time:t.Fajr},{name:'Sunrise',time:t.Sunrise},
+        {name:'Dhuhr',time:t.Dhuhr},{name:'Asr',time:t.Asr},
+        {name:'Maghrib',time:t.Maghrib},{name:'Isha',time:t.Isha},
+      ];
+      renderPrayerBar();
+    }
+  }catch(e){
+    document.getElementById('prayer-bar').innerHTML='<div class="p-item"><div class="p-name">Prayer times unavailable (offline)</div></div>';
+  }
+}
+
+function toMins(s){const[h,m]=s.split(':').map(Number);return h*60+m}
+
+function renderPrayerBar(){
+  if(!prayerTimes) return;
+  const now=getDhakaTime();const mins=getNowMinutes(now);
+  const bar=document.getElementById('prayer-bar');bar.innerHTML='';
+  let nextIdx=prayerTimes.findIndex(p=>toMins(p.time)>mins);
+  if(nextIdx===-1) nextIdx=0;
+  const activeIdx=nextIdx>0?nextIdx-1:prayerTimes.length-1;
+  prayerTimes.forEach((p,i)=>{
+    const el=document.createElement('div');
+    el.className='p-item'+(i===activeIdx?' current-p':'');
+    el.innerHTML=`<div class="p-name">${p.name}</div><div class="p-time">${p.time}</div>`;
+    bar.appendChild(el);
+  });
+}
+
+function updateNextPrayer(now){
+  if(!prayerTimes) return;
+  const mins=getNowMinutes(now);
+  let next=prayerTimes.find(p=>toMins(p.time)>mins)||prayerTimes[0];
+  const nextMins=toMins(next.time);
+  let diff=nextMins-mins;
+  if(diff<0) diff+=1440;
+  const h=Math.floor(diff/60),m=diff%60;
+  document.getElementById('np-name').textContent=next.name;
+  document.getElementById('np-time').textContent=next.time;
+  document.getElementById('np-countdown').textContent=`${h}h ${m}m`;
+}
+
+// ══════════════════════════════════════
+//  TAB NAVIGATION
+// ══════════════════════════════════════
+function go(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.bnav,.d-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  el.classList.add('active');
+  document.querySelectorAll('[data-t="'+id+'"]').forEach(t=>t.classList.add('active'));
+  // Re-render dynamic content
+  if(id==='dictionary') renderWotd();
+  if(id==='calendar') renderCalendar();
+}
+
+// ══════════════════════════════════════
+//  EDIT MODE
+// ══════════════════════════════════════
+const editModes={};
+function eMode(k){
+  editModes[k]=!editModes[k];
+  const btn=document.getElementById(k+'-edit-btn');
+  const listEl=document.getElementById({sched:'tblock-list',habits:'habits-list',goals:'goals-list',books:'books-list',jobs:'apps-list'}[k]);
+  const addEl=document.getElementById(k+'-add')||document.getElementById(k+'s-add');
+  if(editModes[k]){
+    if(btn){btn.textContent='✅ Done';btn.classList.add('on')}
+    if(listEl) listEl.classList.add('edit-mode');
+    if(addEl) addEl.style.display='block';
+  } else {
+    if(btn){btn.textContent='✏️ Edit';btn.classList.remove('on')}
+    if(listEl) listEl.classList.remove('edit-mode');
+    if(addEl) addEl.style.display='none';
+  }
+}
+
+// ══════════════════════════════════════
+//  SCHEDULE
+// ══════════════════════════════════════
+const TAG_MAP={p:'tag-p',w:'tag-w',b:'tag-b',g:'tag-g',s:'tag-s'};
+const TAG_LBL={p:'PRAYER',w:'WORK',b:'BUSINESS',g:'PHYSICAL',s:'SLEEP'};
+
+let schedView='today';
+function schedTab(v){
+  schedView=v;
+  document.getElementById('sched-today-view').style.display=v==='today'?'block':'none';
+  document.getElementById('sched-rot-view').style.display=v==='rotation'?'block':'none';
+  document.getElementById('sched-today-tab').className='btn'+(v==='today'?' on':'');
+  document.getElementById('sched-rot-tab').className='btn'+(v==='rotation'?' on':'');
+  if(v==='rotation') renderRotation();
+}
+
+function renderSchedule(){
+  const list=document.getElementById('tblock-list');
+  list.innerHTML='';
+  const now=getDhakaTime();const mins=getNowMinutes(now);
+  schedData.forEach(b=>{
+    let isCur=false;
+    if(b.start&&b.end){
+      const[sh,sm]=b.start.split(':').map(Number);
+      const[eh,em]=b.end.split(':').map(Number);
+      const s=sh*60+sm,e=eh*60+em;
+      isCur=s<e?(mins>=s&&mins<e):(mins>=s||mins<e);
+    }
+    const el=document.createElement('div');
+    el.className='tblock'+(isCur?' now':'');
+    const tc=TAG_MAP[b.tag]||'tag-w';
+    el.innerHTML=`
+      <div class="tb-time">${b.time}${isCur?'<br><span style="font-size:.55rem;color:var(--teal)">▶ NOW</span>':''}</div>
+      <div class="tb-content"><div class="tb-name">${b.name}</div><div class="tb-desc">${b.desc}</div></div>
+      <span class="tb-badge ${tc}">${TAG_LBL[b.tag]||'WORK'}</span>
+      <button class="del-btn" onclick="delItem('sched','${b.id}')">✕</button>`;
+    list.appendChild(el);
+  });
+  if(editModes['sched']) list.classList.add('edit-mode');
+}
+
+function renderRotation(){
+  const list=document.getElementById('rotation-list');
+  list.innerHTML='';
+  const dayKeys=['sun','mon','tue','wed','thu','fri','sat'];
+  const todayKey=dayKeys[getDhakaTime().getDay()];
+  ROTATION_DATA.forEach(r=>{
+    const isToday=r.key===todayKey;
+    const el=document.createElement('div');
+    el.className='rot-day'+(isToday?' today-rot':'');
+    el.innerHTML=`<div class="rot-hdr">${isToday?'📍':'🗓️'} ${r.day} ${isToday?'<span class="today-badge">TODAY</span>':''}</div>
+      <div class="pill-row">${r.pills.map(p=>`<span class="pill ${p.c}">${p.l}</span>`).join('')}</div>`;
+    list.appendChild(el);
+  });
+}
+
+function addSchedBlock(){
+  const time=document.getElementById('ns-time').value.trim();
+  const name=document.getElementById('ns-name').value.trim();
+  const desc=document.getElementById('ns-desc').value.trim();
+  const tag=document.getElementById('ns-tag').value;
+  if(!time||!name){toast('Fill time + title');return}
+  schedData.push({id:'s'+Date.now(),time,name,desc,tag,start:'',end:''});
+  saveAll();renderSchedule();
+  ['ns-time','ns-name','ns-desc'].forEach(id=>document.getElementById(id).value='');
+  toast('Block added ✓');
+}
+
+function delItem(type,id){
+  if(type==='sched') schedData=schedData.filter(x=>x.id!==id);
+  else if(type==='habit') habitsData=habitsData.filter(x=>x.id!==id);
+  else if(type==='goal') goalsData=goalsData.filter(x=>x.id!==id);
+  else if(type==='book') booksData=booksData.filter(x=>x.id!==id);
+  else if(type==='app') appsData=appsData.filter(x=>x.id!==id);
+  saveAll();
+  if(type==='sched') renderSchedule();
+  else if(type==='habit') renderHabits();
+  else if(type==='goal') renderGoals();
+  else if(type==='book') renderBooks();
+  else if(type==='app') renderApps();
+  toast('Removed');
+}
+
+// ══════════════════════════════════════
+//  HABITS
+// ══════════════════════════════════════
+const WEEK_DAYS=['Sa','Su','Mo','Tu','We','Th','Fr'];
+const todayDayIdx=(getDhakaTime().getDay()+6)%7;
+
+function renderHabits(){
+  const list=document.getElementById('habits-list');
+  list.innerHTML='';
+  let done=0;
+  habitsData.forEach(h=>{
+    let streak=WEEK_DAYS.filter((_,i)=>habitChecks[h.id+'_'+i]).length;
+    if(habitChecks[h.id+'_'+todayDayIdx]) done++;
+    let daysHTML=WEEK_DAYS.map((d,i)=>{
+      const cid=`hc_${h.id}_${i}`;
+      const chk=habitChecks[h.id+'_'+i]?'checked':'';
+      const isT=i===todayDayIdx;
+      return `<div class="day-wrap">
+        <span class="day-lbl${isT?' tday':''}">${d}</span>
+        <input type="checkbox" class="dcb" id="${cid}" ${chk} onchange="toggleHabit('${h.id}',${i},this)"/>
+        <label for="${cid}" class="dbox">✓</label>
+      </div>`;
+    }).join('');
+    const el=document.createElement('div');
+    el.className='habit-item';
+    el.innerHTML=`<div class="habit-top">
+      <div style="width:3px;height:36px;background:${h.color};border-radius:2px;flex-shrink:0"></div>
+      <div style="flex:1"><div class="habit-name">${h.name}<span class="habit-sub">${h.desc}</span></div></div>
+      <div class="streak-badge">${streak} 🔥</div>
+      <button class="del-btn" onclick="delItem('habit','${h.id}')">✕</button>
+    </div>
+    <div class="day-row">${daysHTML}</div>`;
+    list.appendChild(el);
+  });
+  if(editModes['habits']) list.classList.add('edit-mode');
+  // Update header stats
+  const total=habitsData.length;
+  document.getElementById('q-done').textContent=done;
+  document.getElementById('q-total').textContent=total;
+  document.getElementById('hk-quests').textContent=total>0?Math.round(done/total*100)+'%':'0%';
+  updateStreak(done,total);
+}
+
+function toggleHabit(hid,di,el){
+  habitChecks[hid+'_'+di]=el.checked;
+  saveAll();renderHabits();
+}
+
+function addHabit(){
+  const name=document.getElementById('nh-name').value.trim();
+  const desc=document.getElementById('nh-desc').value.trim();
+  const color=document.getElementById('nh-color').value;
+  if(!name){toast('Enter habit name');return}
+  habitsData.push({id:'h'+Date.now(),name,desc,color});
+  saveAll();renderHabits();
+  document.getElementById('nh-name').value='';document.getElementById('nh-desc').value='';
+  toast('Quest added ✓');
+}
+
+function updateStreak(done,total){
+  const td=new Date().toISOString().split('T')[0];
+  const pct=total>0?done/total:0;
+  if(streakData.lastDate!==td){
+    const diff=streakData.lastDate?(new Date(td)-new Date(streakData.lastDate))/86400000:1;
+    if(diff===1&&pct>=0.5) streakData.streak=(streakData.streak||0)+1;
+    else if(diff>1) streakData.streak=0;
+    streakData.lastDate=td;saveAll();
+  }
+  document.getElementById('streak-val').textContent=streakData.streak;
+  document.getElementById('hk-streak').textContent=streakData.streak;
+}
+
+// ══════════════════════════════════════
+//  GOALS
+// ══════════════════════════════════════
+const GOAL_COLS=['linear-gradient(90deg,#3578c8,#1db8a4)','linear-gradient(90deg,#c9983a,#f0c45a)','linear-gradient(90deg,#38c870,#1db8a4)','linear-gradient(90deg,#e05555,#e08030)','linear-gradient(90deg,#7a5abf,#3578c8)','linear-gradient(90deg,#c9983a,#e08030)'];
+
+function renderGoals(){
+  const list=document.getElementById('goals-list');
+  list.innerHTML='';
+  goalsData.forEach((g,si)=>{
+    const tasks=g.tasks||[];
+    const done=tasks.filter((_,i)=>goalChecks[g.id+'_'+i]).length;
+    const pct=tasks.length?Math.round(done/tasks.length*100):0;
+    const col=g.color||GOAL_COLS[si%GOAL_COLS.length];
+    const tasksHTML=tasks.map((t,i)=>{
+      const chk=goalChecks[g.id+'_'+i]?'checked':'';
+      return `<label class="task-row"><input type="checkbox" ${chk} onchange="toggleGoalTask('${g.id}',${i},this)"/>
+        <div class="task-dot">✓</div><span class="task-lbl">${t}</span></label>`;
+    }).join('');
+    const el=document.createElement('div');
+    el.className='card';
+    el.innerHTML=`<div class="goal-card">
+      <div class="goal-top">
+        <div class="goal-icon">${g.emoji}</div>
+        <div style="flex:1">
+          <div class="goal-title">${g.title}</div>
+          <div class="goal-desc">${g.desc}</div>
+        </div>
+        <button class="del-btn" onclick="delItem('goal','${g.id}')">✕</button>
+      </div>
+      <div class="prog-labels"><span>${done}/${tasks.length} tasks</span><span>${pct}%</span></div>
+      <div class="prog-row"><div class="prog-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div class="task-list">${tasksHTML}</div>
+    </div>`;
+    list.appendChild(el);
+  });
+  if(editModes['goals']) list.classList.add('edit-mode');
+}
+
+function toggleGoalTask(gid,idx,el){
+  goalChecks[gid+'_'+idx]=el.checked;saveAll();renderGoals();
+}
+
+function addGoal(){
+  const emoji=document.getElementById('ng-emoji').value.trim()||'🎯';
+  const title=document.getElementById('ng-title').value.trim();
+  const desc=document.getElementById('ng-desc').value.trim();
+  const tr=document.getElementById('ng-tasks').value.trim();
+  if(!title){toast('Enter objective title');return}
+  const tasks=tr?tr.split(',').map(t=>t.trim()).filter(Boolean):[];
+  const col=GOAL_COLS[goalsData.length%GOAL_COLS.length];
+  goalsData.push({id:'g'+Date.now(),emoji,title,desc,color:col,tasks});
+  saveAll();renderGoals();
+  ['ng-emoji','ng-title','ng-desc','ng-tasks'].forEach(id=>document.getElementById(id).value='');
+  toast('Objective added ✓');
+}
+
+// ══════════════════════════════════════
+//  BOOKS
+// ══════════════════════════════════════
+function renderBooks(){
+  const list=document.getElementById('books-list');
+  list.innerHTML='';
+  booksData.forEach(b=>{
+    const bx=bookExtra[b.id]||{};
+    const cur=bx.current!==undefined?bx.current:b.current;
+    const notes=bx.notes!==undefined?bx.notes:b.notes;
+    const total=b.total||0;
+    const pct=total>0?Math.min(100,Math.round(cur/total*100)):0;
+    const scls={r:'bs-r',d:'bs-d',q:'bs-q'};
+    const slbl={r:'READING',d:'FINISHED ✓',q:'UP NEXT'};
+    const el=document.createElement('div');
+    el.className='card';
+    el.innerHTML=`<div class="book-item">
+      <div class="bk-top">
+        <div class="bk-cover">${b.emoji}</div>
+        <div style="flex:1">
+          <div class="bk-title">${b.title}</div>
+          <div class="bk-author">${b.author}</div>
+          <span class="bk-status ${scls[b.status]}">${slbl[b.status]}</span>
+        </div>
+        <button class="del-btn" onclick="delItem('book','${b.id}')">✕</button>
+      </div>
+      ${total>0?`<div class="page-row">
+        <span class="pg-lbl">Page:</span>
+        <input type="number" class="pg-in" value="${cur}" min="0" max="${total}"
+          onchange="updatePage('${b.id}',this.value,${total})"/>
+        <span class="pg-lbl" id="pg-lbl-${b.id}">of ${total} — ${pct}%</span>
+      </div>
+      <div class="prog-row"><div class="prog-fill pf-${b.status}" id="pg-bar-${b.id}" style="width:${pct}%;background:linear-gradient(90deg,var(--teal),var(--blue))"></div></div>`:''}
+      <textarea class="bk-notes" placeholder="Insights, quotes, notes..."
+        onchange="updateNotes('${b.id}',this.value)">${notes}</textarea>
+    </div>`;
+    list.appendChild(el);
+  });
+  if(editModes['books']) list.classList.add('edit-mode');
+}
+
+function updatePage(id,val,total){
+  const p=Math.max(0,Math.min(total,parseInt(val)||0));
+  if(!bookExtra[id]) bookExtra[id]={};
+  bookExtra[id].current=p;saveAll();
+  const pct=total>0?Math.min(100,Math.round(p/total*100)):0;
+  const lbl=document.getElementById('pg-lbl-'+id);
+  const bar=document.getElementById('pg-bar-'+id);
+  if(lbl) lbl.textContent=`of ${total} — ${pct}%`;
+  if(bar) bar.style.width=pct+'%';
+}
+function updateNotes(id,val){if(!bookExtra[id]) bookExtra[id]={};bookExtra[id].notes=val;saveAll()}
+function addBook(){
+  const emoji=document.getElementById('nb-emoji').value.trim()||'📖';
+  const title=document.getElementById('nb-title').value.trim();
+  const author=document.getElementById('nb-author').value.trim()||'—';
+  const total=parseInt(document.getElementById('nb-total').value)||0;
+  const status=document.getElementById('nb-status').value;
+  if(!title){toast('Enter book title');return}
+  booksData.push({id:'b'+Date.now(),emoji,title,author,total,current:0,status,notes:''});
+  saveAll();renderBooks();
+  ['nb-emoji','nb-title','nb-author','nb-total'].forEach(id=>document.getElementById(id).value='');
+  toast('Book logged ✓');
+}
+
+// ══════════════════════════════════════
+//  CALENDAR
+// ══════════════════════════════════════
+let calYear=getDhakaTime().getFullYear();
+let calMonth=getDhakaTime().getMonth();
+let selectedDate=null;
+
+function renderCalendar(){
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-label').textContent=months[calMonth]+' '+calYear;
+  const grid=document.getElementById('cal-days');grid.innerHTML='';
+  const first=new Date(calYear,calMonth,1).getDay();
+  const days=new Date(calYear,calMonth+1,0).getDate();
+  const today=getDhakaTime();
+  // empty cells
+  for(let i=0;i<first;i++){
+    const el=document.createElement('div');el.className='cal-day other-month';grid.appendChild(el);
+  }
+  for(let d=1;d<=days;d++){
+    const el=document.createElement('div');
+    const dateKey=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=d===today.getDate()&&calMonth===today.getMonth()&&calYear===today.getFullYear();
+    const hasEv=calEvents[dateKey]&&calEvents[dateKey].length>0;
+    el.className='cal-day'+(isToday?' today':'')+(hasEv?' has-event':'');
+    el.textContent=d;
+    el.onclick=()=>openEventModal(dateKey,d);
+    grid.appendChild(el);
+  }
+  renderUpcoming();
+}
+
+function calNav(dir){
+  calMonth+=dir;
+  if(calMonth>11){calMonth=0;calYear++}
+  if(calMonth<0){calMonth=11;calYear--}
+  renderCalendar();
+}
+
+function openEventModal(dateKey,day){
+  selectedDate=dateKey;
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('modal-date-label').textContent=`${day} ${months[calMonth]} ${calYear}`;
+  document.getElementById('ev-title').value='';
+  document.getElementById('ev-notes').value='';
+  document.getElementById('event-modal').classList.add('show');
+}
+function closeModal(){document.getElementById('event-modal').classList.remove('show')}
+function closeNameModal(){document.getElementById('name-modal').classList.remove('show')}
+
+function saveEvent(){
+  const title=document.getElementById('ev-title').value.trim();
+  if(!title){toast('Enter event title');return}
+  const cat=document.getElementById('ev-cat').value;
+  const notes=document.getElementById('ev-notes').value.trim();
+  if(!calEvents[selectedDate]) calEvents[selectedDate]=[];
+  calEvents[selectedDate].push({id:'e'+Date.now(),title,cat,notes,date:selectedDate});
+  saveAll();closeModal();renderCalendar();
+  // Schedule notification
+  scheduleNotif(title,selectedDate);
+  toast('Event saved ✓');
+}
+
+function scheduleNotif(title,dateStr){
+  if(!('Notification' in window)) return;
+  const target=new Date(dateStr+'T09:00:00');
+  const diff=target-new Date();
+  if(diff<=0) return;
+  if(Notification.permission==='granted'){
+    setTimeout(()=>new Notification('📅 Reminder: '+title,{body:'Today is the day!'}),diff);
+    // Also day before
+    const dayBefore=diff-86400000;
+    if(dayBefore>0) setTimeout(()=>new Notification('📅 Tomorrow: '+title,{body:'Prepare for tomorrow!'}),dayBefore);
+  } else if(Notification.permission==='default'){
+    Notification.requestPermission().then(p=>{if(p==='granted') scheduleNotif(title,dateStr)});
+  }
+}
+
+function renderUpcoming(){
+  const list=document.getElementById('events-list');
+  const catColor={imm:'cat-imm',iel:'cat-iel',isl:'cat-isl',hlt:'cat-hlt',biz:'cat-biz',per:'cat-per'};
+  const catLabel={imm:'Immigration',iel:'IELTS',isl:'Islamic',hlt:'Health',biz:'Business',per:'Personal'};
+  const today=getDhakaTime().toISOString().split('T')[0];
+  let upcoming=[];
+  Object.keys(calEvents).sort().forEach(k=>{
+    if(k>=today) calEvents[k].forEach(e=>upcoming.push({...e,dateStr:k}));
+  });
+  if(upcoming.length===0){
+    list.innerHTML='<div style="font-size:.78rem;color:var(--muted)">No upcoming events. Click any date to add one.</div>';
+    return;
+  }
+  list.innerHTML=upcoming.slice(0,8).map(e=>`
+    <div class="event-item">
+      <div class="event-dot ${catColor[e.cat]||'cat-per'}"></div>
+      <div>
+        <div class="event-title">${e.title}</div>
+        <div class="event-date">${e.dateStr} · ${catLabel[e.cat]||'Personal'}</div>
+        ${e.notes?`<div style="font-size:.68rem;color:var(--muted);margin-top:3px">${e.notes}</div>`:''}
+      </div>
+      <button onclick="deleteEvent('${e.dateStr}','${e.id}')" style="margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:2px 6px">✕</button>
+    </div>`).join('');
+}
+
+function deleteEvent(dateStr,id){
+  if(calEvents[dateStr]) calEvents[dateStr]=calEvents[dateStr].filter(e=>e.id!==id);
+  saveAll();renderCalendar();toast('Removed');
+}
+
+// ══════════════════════════════════════
+//  DICTIONARY
+// ══════════════════════════════════════
+let dictView='wotd';
+function dictTab(v){
+  dictView=v;
+  document.getElementById('dict-wotd-view').style.display=v==='wotd'?'block':'none';
+  document.getElementById('dict-99-view').style.display=v==='99names'?'block':'none';
+  document.getElementById('dict-arabic-view').style.display=v==='arabic'?'block':'none';
+  ['wotd','99names','arabic'].forEach(t=>{
+    const btn=document.getElementById('dict-'+t+'-tab');
+    if(btn) btn.className='btn'+(v===t?' on':'');
+  });
+  if(v==='99names') renderNames('');
+  if(v==='arabic') renderArabicWords();
+}
+
+function getDayOfYear(){
+  const now=getDhakaTime();
+  const start=new Date(now.getFullYear(),0,0);
+  return Math.floor((now-start)/86400000);
+}
+
+function renderWotd(){
+  const idx=getDayOfYear()%WOTD_LIST.length;
+  const w=WOTD_LIST[idx];
+  // Update home preview
+  document.getElementById('wotd-preview').textContent=w.w;
+  document.getElementById('wotd-meaning-preview').textContent=w.m;
+  // Full card
+  const card=document.getElementById('wotd-card');
+  card.innerHTML=`<div class="wc-label">📖 Word of the Day — ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long'})}</div>
+  <div class="wc-word">${w.w}</div>
+  <div class="wc-type">${w.t}</div>
+  <div class="wc-meaning">${w.m}</div>
+  <div class="wc-example">"${w.e}"</div>
+  <div class="wc-section">
+    <div class="wc-section-label">Synonyms</div>
+    <div class="tag-list">${w.syn.map(s=>`<span class="tag-pill">${s}</span>`).join('')}</div>
+  </div>
+  <div class="wc-section" style="margin-top:12px">
+    <div class="wc-section-label">Arabic Equivalent</div>
+    <div class="arabic-word">${w.ar}</div>
+    <div class="arabic-meaning">${w.arm}</div>
+  </div>`;
+}
+
+async function lookupWord(){
+  const q=document.getElementById('word-search-in').value.trim();
+  if(!q){toast('Enter a word');return}
+  const res=document.getElementById('word-lookup-result');
+  res.innerHTML='<div style="color:var(--muted);font-size:.78rem">Searching...</div>';
+  // Try Dictionary API first
+  try{
+    const r=await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(q)}`);
+    const data=await r.json();
+    if(Array.isArray(data)&&data[0]){
+      const entry=data[0];
+      const def=entry.meanings[0]?.definitions[0];
+      res.innerHTML=`<div class="wc-word" style="font-size:1.2rem">${entry.word}</div>
+      <div class="wc-type">${entry.meanings[0]?.partOfSpeech||''}</div>
+      <div class="wc-meaning" style="margin-top:8px">${def?.definition||'No definition found.'}</div>
+      ${def?.example?`<div class="wc-example" style="margin-top:8px">"${def.example}"</div>`:''}
+      ${def?.synonyms?.length?`<div class="tag-list" style="margin-top:8px">${def.synonyms.slice(0,5).map(s=>`<span class="tag-pill">${s}</span>`).join('')}</div>`:''}`;
+    } else {
+      res.innerHTML=`<div style="color:var(--muted);font-size:.78rem">Word not found in dictionary.</div>`;
+    }
+  } catch(e){
+    res.innerHTML=`<div style="color:var(--muted);font-size:.78rem">Lookup failed. Check your connection.</div>`;
+  }
+}
+
+function renderNames(filter){
+  const grid=document.getElementById('names-grid');
+  grid.innerHTML='';
+  const flt=filter.toLowerCase();
+  NAMES_99.filter(n=>!flt||n.tr.toLowerCase().includes(flt)||n.m.toLowerCase().includes(flt)||n.ar.includes(filter)).forEach(n=>{
+    const el=document.createElement('div');
+    el.className='name-card';
+    el.innerHTML=`<div class="name-num">${n.n}</div>
+      <div class="name-arabic">${n.ar}</div>
+      <div class="name-translit">${n.tr}</div>
+      <div class="name-meaning">${n.m}</div>`;
+    el.onclick=()=>showName(n);
+    grid.appendChild(el);
+  });
+}
+function filterNames(v){renderNames(v)}
+
+function showName(n){
+  document.getElementById('name-modal-content').innerHTML=`
+    <div class="nm-arabic">${n.ar}</div>
+    <div class="nm-translit">${n.tr}</div>
+    <div class="nm-meaning">${n.m}</div>
+    <div class="nm-desc">${n.d}</div>
+    <div style="margin-top:16px;font-size:.72rem;color:var(--muted)">Name #${n.n} of 99</div>`;
+  document.getElementById('name-modal').classList.add('show');
+}
+
+function renderArabicWords(){
+  const list=document.getElementById('arabic-words-list');
+  list.innerHTML='';
+  ARABIC_WORDS.forEach(w=>{
+    const el=document.createElement('div');
+    el.style.cssText='padding:14px;border-bottom:1px solid rgba(201,152,58,0.08)';
+    el.innerHTML=`<div style="display:flex;align-items:flex-start;gap:14px">
+      <div style="text-align:right;min-width:90px">
+        <div class="arabic-word">${w.ar}</div>
+        <div style="font-size:.68rem;color:var(--teal);font-style:italic;margin-top:2px">${w.tr}</div>
+      </div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:.85rem;margin-bottom:4px">${w.m}</div>
+        <div style="font-size:.72rem;color:var(--muted);line-height:1.5">${w.ctx}</div>
+      </div>
+    </div>`;
+    list.appendChild(el);
+  });
+}
+
+// ══════════════════════════════════════
+//  JOBS
+// ══════════════════════════════════════
+let jobsView='tracker';
+function jobsTab(v){
+  jobsView=v;
+  document.getElementById('jobs-tracker-view').style.display=v==='tracker'?'block':'none';
+  document.getElementById('jobs-remote-view').style.display=v==='remote'?'block':'none';
+  document.getElementById('jobs-imm-view').style.display=v==='immigration'?'block':'none';
+  ['tracker','remote','immigration'].forEach(t=>{
+    const btn=document.getElementById('jobs-'+t+'-tab');
+    if(btn) btn.className='btn'+(v===t?' on':'');
+  });
+  if(v==='remote') renderRemoteJobs();
+  if(v==='immigration') renderImmJobs();
+}
+
+const STATUS_MAP={n:{cls:'js-n',l:'Not Applied'},a:{cls:'js-a',l:'Applied'},p:{cls:'js-p',l:'In Progress'},r:{cls:'js-r',l:'Rejected'},s:{cls:'js-a',l:'Success! 🎉'}};
+
+function renderApps(){
+  const list=document.getElementById('apps-list');
+  list.innerHTML='';
+  appsData.forEach(a=>{
+    const sm=STATUS_MAP[a.status]||STATUS_MAP['n'];
+    const el=document.createElement('div');
+    el.className='job-item';
+    el.innerHTML=`<div class="job-icon">${a.emoji}</div>
+      <div class="job-info">
+        <div class="job-title">${a.company}</div>
+        <div class="job-meta">${a.role} · ${a.notes||''}</div>
+      </div>
+      <span class="job-status ${sm.cls}">${sm.l}</span>
+      <button class="del-btn" onclick="delItem('app','${a.id}')">✕</button>`;
+    list.appendChild(el);
+  });
+  if(editModes['jobs']) list.classList.add('edit-mode');
+}
+
+function addApplication(){
+  const emoji=document.getElementById('na-emoji').value.trim()||'💼';
+  const company=document.getElementById('na-company').value.trim();
+  const role=document.getElementById('na-role').value.trim();
+  const status=document.getElementById('na-status').value;
+  if(!company){toast('Enter company name');return}
+  appsData.push({id:'a'+Date.now(),emoji,company,role,status,notes:''});
+  saveAll();renderApps();
+  ['na-emoji','na-company','na-role'].forEach(id=>document.getElementById(id).value='');
+  toast('Application logged ✓');
+}
+
+function renderRemoteJobs(){
+  const list=document.getElementById('remote-jobs-list');
+  list.innerHTML='';
+  REMOTE_JOBS.forEach(j=>{
+    const el=document.createElement('a');
+    el.className='job-link-item';el.href=j.url;el.target='_blank';el.rel='noopener';
+    el.innerHTML=`<div class="job-icon">${j.icon}</div>
+      <div class="jl-info"><div class="jl-name">${j.name}</div><div class="jl-desc">${j.desc}</div></div>
+      <span class="jl-badge" style="background:rgba(56,200,112,.1);color:var(--green);border:1px solid rgba(56,200,112,.2)">${j.badge}</span>`;
+    list.appendChild(el);
+  });
+}
+
+function renderImmJobs(){
+  const list=document.getElementById('imm-jobs-list');
+  list.innerHTML='';
+  IMM_JOBS.forEach(j=>{
+    const el=document.createElement('a');
+    el.className='job-link-item';el.href=j.url;el.target='_blank';el.rel='noopener';
+    el.innerHTML=`<div class="job-icon">${j.icon}</div>
+      <div class="jl-info"><div class="jl-name">${j.name}</div><div class="jl-desc">${j.desc}</div></div>
+      <span class="jl-badge" style="background:rgba(53,120,200,.1);color:var(--blue);border:1px solid rgba(53,120,200,.2)">${j.badge}</span>`;
+    list.appendChild(el);
+  });
+}
+
+// ══════════════════════════════════════
+//  SEARCH
+// ══════════════════════════════════════
+const SEARCH_PRESETS=[
+  {l:'🇦🇺 AU 482 Truck Driver',q:'site:seek.com.au truck driver 482 visa sponsorship'},
+  {l:'🇨🇦 CA LMIA Truck',q:'site:jobbank.gc.ca transport truck driver NOC 73300'},
+  {l:'🇬🇧 UK Marketing Visa',q:'digital marketing manager visa sponsorship UK £41700'},
+  {l:'🇩🇪 Germany Chancenkarte',q:'Germany Chancenkarte 2026 Bangladesh requirements points'},
+  {l:'📝 IELTS Band 9',q:'IELTS Band 9 tips writing task 2 vocabulary'},
+  {l:'🌐 Remote Marketing Jobs',q:'remote digital marketing manager jobs 2026 Bangladesh eligible'},
+  {l:'📊 Power BI Jobs Remote',q:'Power BI analyst remote jobs 2026 entry level'},
+  {l:'🌙 Learn Arabic Quran',q:'learn Quranic Arabic free beginners Madinah'},
+  {l:'💰 Freelance Analytics',q:'upwork data analytics Excel dashboard freelance beginners'},
+  {l:'📚 IELTS Speaking Band 9',q:'IELTS speaking band 9 sample answers part 2'},
+];
+
+function initSearch(){
+  const grid=document.getElementById('preset-grid');
+  const chips=document.getElementById('search-presets');
+  SEARCH_PRESETS.forEach((p,i)=>{
+    const chip=document.createElement('button');
+    chip.className='preset-chip';chip.textContent=p.l;
+    chip.onclick=()=>{document.getElementById('main-search').value=p.q;doSearch()};
+    chips.appendChild(chip);
+    if(i<6){
+      const btn=document.createElement('button');
+      btn.className='btn';btn.textContent=p.l;btn.style.cssText='font-size:.72rem;border-radius:9px;padding:8px 10px;text-align:left';
+      btn.onclick=()=>{document.getElementById('main-search').value=p.q;doSearch()};
+      grid.appendChild(btn);
+    }
+  });
+}
+
+function doSearch(){
+  const q=document.getElementById('main-search').value.trim();
+  if(!q){toast('Enter a search query');return}
+  window.open('https://www.google.com/search?q='+encodeURIComponent(q),'_blank');
+}
+
+// ══════════════════════════════════════
+//  AI CHAT
+// ══════════════════════════════════════
+const AI_SYSTEM=`You are a strategic advisor with full context on this user. You play TWO roles simultaneously:
+1. IMMIGRATION STRATEGIST: Expert on AU 482 Truck Driver visa, CA LMIA driver route, UK Skilled Worker digital marketing, Germany Chancenkarte. Always specific, never generic.
+2. LIFE COACH: Personal accountability partner who knows he started transformation on 3 March 2026 (Ramadan Day 1). Direct, warm, no fluff.
+
+USER PROFILE:
+- Age 28, male, Bangladeshi, Dhaka (Kafrul). Single.
+- BBA Marketing, North South University, CGPA 2.44. NSU = ANABIN H+/- (Germany eligible).
+- 1-2 years digital marketing agency. Political campaign strategy experience. Photography/videography Sony a7.
+- Microsoft Data Analytics cert — in progress.
+- Savings: $15,000-$30,000 USD. Needs to leave Bangladesh this year.
+- Family: Bond paper business, Nayabazar, Dhaka (his "live MBA" for Masters SOP).
+- Currently: unemployed, Ramadan 2026, personal transformation, reading Master Your Emotions.
+- Breaking addictions: phone (was 10h/day), social media, music, porn.
+
+IMMIGRATION PRIORITY: Australia #1 (482 truck driver, ANZSCO 733111, AUD $76,515 floor) → Canada #2 (LMIA NOC 73300, SINP) → UK #3 (digital marketing, £41,700) → Germany parallel (Chancenkarte).
+Friends in: AU (Sydney/Melbourne/Brisbane), CA (Toronto/Vancouver/Halifax), UK (London/Manchester).
+Action items: IELTS (target 7.0+, targeting Band 9 long term), BRTA license upgrade (non-professional → heavy vehicle), police clearance, NSU transcripts, IDP, medical, portfolio PDF.
+Also looking for remote digital marketing / analytics jobs NOW to fund the flight.
+
+GOALS: IELTS Band 9, Arabic language (Quranic), 5 daily prayers, break addictions, gym, read 29 books in assigned order, build Nayabazar case study for Masters SOP.
+Books Phase 1 (now): Master Your Emotions (reading, 20 pages done Ch 1-2), Atomic Habits, Can't Hurt Me, Deep Work.
+
+INSTRUCTIONS:
+- Be direct. No generic advice. Always specific to his profile.
+- Reference his context naturally.
+- When answering immigration questions, be precise about visa requirements.
+- End every response with ONE concrete next step.
+- If he's losing motivation, remind him of Day 1 and why he started.
+- He is in Ramadan — factor in fasting energy levels.
+- Everything must be free or within his budget unless he specifies otherwise.`;
+
+async function sendMsg(){
+  const input=document.getElementById('chat-input');
+  const text=input.value.trim();
+  if(!text) return;
+  input.value='';
+  addMessage('user',text);
+  chatHistory.push({role:'user',content:text});
+  const loading=addMessage('ai','loading');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:AI_SYSTEM,
+        messages:chatHistory.slice(-10)
+      })
+    });
+    const data=await res.json();
+    const reply=data.content?.map(c=>c.text||'').join('')||'Sorry, I could not respond right now.';
+    loading.remove();
+    addMessage('ai',reply);
+    chatHistory.push({role:'assistant',content:reply});
+  } catch(e){
+    loading.remove();
+    addMessage('ai','Connection error. Please try again.');
+  }
+}
+
+function addMessage(role,text){
+  const msgs=document.getElementById('chat-messages');
+  const div=document.createElement('div');
+  div.className=`msg msg-${role}`;
+  if(text==='loading'){
+    div.innerHTML='<div class="msg-bubble loading"><div class="dot-anim"></div><div class="dot-anim"></div><div class="dot-anim"></div></div>';
+  } else {
+    div.innerHTML=`<div class="msg-bubble">${text.replace(/\n/g,'<br/>')}</div>`;
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+
+function quickChat(msg){
+  document.getElementById('chat-input').value=msg;
+  sendMsg();
+  go('ai',document.querySelector('[data-t="ai"]')||document.querySelector('[onclick*="go(\'ai\'"]'));
+}
+
+// ══════════════════════════════════════
+//  RESOURCES
+// ══════════════════════════════════════
+function renderResources(){
+  const grid=document.getElementById('resources-list');
+  RESOURCES_DATA.forEach(g=>{
+    const el=document.createElement('div');
+    el.className='card';
+    el.innerHTML=`<div class="res-group-hdr">${g.group}</div>`+
+      g.items.map(r=>`<a class="res-link" href="${r.u}" target="_blank" rel="noopener">
+        <span class="rl-icon">${r.i}</span>
+        <div><div class="rl-name">${r.n}</div><div class="rl-desc">${r.d}</div></div>
+        <span class="rl-badge">FREE</span></a>`).join('');
+    grid.appendChild(el);
+  });
+}
+
+// ══════════════════════════════════════
+//  MILESTONES
+// ══════════════════════════════════════
+function addMilestone(){
+  const txt=document.getElementById('new-milestone').value.trim();
+  if(!txt){toast('Write your milestone');return}
+  const date=getDhakaTime().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  milestones.push({date,text:txt});saveAll();
+  document.getElementById('new-milestone').value='';
+  renderMilestones();toast('Milestone logged ✓');
+}
+
+function renderMilestones(){
+  const el=document.getElementById('extra-milestones');
+  el.innerHTML=milestones.map(m=>`
+    <div style="margin-top:8px;padding-top:8px;border-top:1px dashed rgba(201,152,58,.1)">
+      <span style="font-weight:600;color:var(--text)">${m.date} —</span> ${m.text}
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════
+function toast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+renderSchedule();
+renderHabits();
+renderGoals();
+renderBooks();
+renderApps();
+renderResources();
+renderMilestones();
+renderWotd();
+initSearch();
+fetchPrayer();
+setInterval(fetchPrayer,3600000);
+tick();setInterval(tick,1000);
+// Request notification permission
+if('Notification' in window && Notification.permission==='default'){
+  setTimeout(()=>{
+    Notification.requestPermission().then(p=>{
+      if(p==='granted') toast('🔔 Reminders enabled!');
+    });
+  },3000);
+}
+</script>
+</body>
+</html>
