@@ -1,0 +1,1 @@
+"Personal Life OS — A single-file HTML dashboard built with vanilla JS and localStorage. Includes prayer time integration (Aladhan API), habit tracking, Quranic Arabic vocabulary, job search tracker, and an AI Coach tab powered by the Anthropic API. Built entirely from scratch."
